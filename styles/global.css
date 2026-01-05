@@ -1315,8 +1315,14 @@ a {
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    align-items: center;
+         /* horizontal center */
+    justify-content: center;
+        /* vertical center */
     text-align: center;
+}
+.deposit-popup img {
+    margin: 16px 0;
 }
 
 .deposit-popup h3 {
@@ -1360,6 +1366,214 @@ a {
     cursor: pointer;
     margin-top: 0.5rem;
 }
+.deposit-popup p {
+    margin: 16px 0;
+}
 
 
 
+
+
+
+
+
+
+
+
+.pending-dots {
+  display: inline-flex;
+  gap: 2px;
+  color: #facc15;
+  font-weight: 600;
+}
+
+.pending-dots .dot {
+  animation: blink 1.4s infinite both;
+}
+
+.pending-dots .dot:nth-child(1) { animation-delay: 0s; }
+.pending-dots .dot:nth-child(2) { animation-delay: 0.2s; }
+.pending-dots .dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes blink {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Popup overlay for both deposit and withdraw modals */
+.popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+/* General popup styling */
+.popup {
+    background: #111;
+    padding: 24px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    color: #fff;
+}
+
+/* QR code centering */
+.deposit-popup img,
+.deposit-popup .btc-image {
+    display: block;
+    margin: 16px auto;
+}
+
+/* BTC address input and button */
+.btc-address {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.btc-address input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    background: #222;
+    color: #fff;
+    font-family: monospace;
+}
+
+.btc-address button {
+    background: #10b981;
+    color: #000;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Withdraw modal specific */
+.withdraw-popup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+/* .btc-icon {
+    width: 70px;
+    height: 70px;
+    background: #f7931a;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+} */
+
+/* Withdraw input fields */
+.withdraw-popup input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    background: #222;
+    color: #fff;
+}
+
+/* Amount row with BTC label and MAX button */
+.amount-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+}
+
+.amount-row input {
+    flex: 1;
+    
+}
+.amount-row input::-webkit-outer-spin-button,
+.amount-row input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    /* Chrome, Safari, Edge */
+    margin: 0;
+}
+/* .btc-label {
+    font-weight: 600;
+    color: #facc15;
+} */
+
+.max-btn {
+    background: #10b981 !important;
+    color: #10b981;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Available BTC text */
+.available {
+    font-size: 14px;
+    color: #9ca3af;
+    align-self: flex-start;
+}
+
+/* Withdraw action buttons */
+.withdraw-actions {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.confirm-btn {
+    flex: 1;
+    background: #10b981 !important;
+    color: #000;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.close-btn {
+    flex: 1;
+    background: #ef4444 !important;
+    color: #fff;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}

@@ -27,10 +27,12 @@ ChartJS.register(
 );
 
 const Dashboard: NextPage = () => {
-  const totalBalanceBTC = 1.2845;
-  const assetBalanceBTC = 0.7342;
-  const exchangeBalanceBTC = 0.5503;
   const btcPrice = 90068;
+
+  // 🔹 Balances (start at zero)
+  const [totalBalanceBTC, setTotalBalanceBTC] = useState(0);
+  const [assetBalanceBTC] = useState(0);
+  const [exchangeBalanceBTC] = useState(0);
 
   const [chartData, setChartData] = useState<any>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -40,19 +42,34 @@ const Dashboard: NextPage = () => {
   const [loadingCoins, setLoadingCoins] = useState(true);
   const [username, setUsername] = useState("User");
 
-  // Deposit Modal
+  // 🔹 Deposit modal
   const [showDeposit, setShowDeposit] = useState(false);
+
+  // 🔹 Withdraw modal
+  const [showWithdraw, setShowWithdraw] = useState(false);
+  const [withdrawAddress, setWithdrawAddress] = useState("");
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+
   const btcAddress =
     "bc1pz5jxatjcknvy3na95hhlj3hltptvltld0pxdnx96qsteymhjqqlqf56y5d";
 
-  // Get username from localStorage
+  // 🔹 Get username
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
     if (user?.username) setUsername(user.username);
     else if (user?.name) setUsername(user.name);
+
+    // 🔹 Load transactions from localStorage (persist on logout/login)
+    const savedTx = JSON.parse(localStorage.getItem("transactions") || "[]");
+    if (savedTx.length > 0) setTransactions(savedTx);
   }, []);
 
-  // BTC price chart
+  // 🔹 Save transactions to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("transactions", JSON.stringify(transactions));
+  }, [transactions]);
+
+  // 🔹 BTC price chart
   useEffect(() => {
     const fetchChart = async () => {
       const res = await fetch(
@@ -60,21 +77,20 @@ const Dashboard: NextPage = () => {
       );
       const data = await res.json();
 
-      const labels = data.prices.map((p: any) => {
-        const d = new Date(p[0]);
-        return `${d.getHours()}:${d.getMinutes().toString().padStart(2, "0")}`;
-      });
-
-      const prices = data.prices.map((p: any) => p[1]);
-
       setChartData({
-        labels,
+        labels: data.prices.map((p: any) => {
+          const d = new Date(p[0]);
+          return `${d.getHours()}:${d
+            .getMinutes()
+            .toString()
+            .padStart(2, "0")}`;
+        }),
         datasets: [
           {
             label: "BTC Price (USD)",
-            data: prices,
+            data: data.prices.map((p: any) => p[1]),
             borderColor: "#10b981",
-            backgroundColor: "rgba(16, 185, 129, 0.15)",
+            backgroundColor: "rgba(16,185,129,0.15)",
             tension: 0.4,
             fill: true,
           },
@@ -85,24 +101,39 @@ const Dashboard: NextPage = () => {
     fetchChart();
   }, []);
 
-  // Fetch transactions
+  // 🔹 Fetch transactions from API periodically
   useEffect(() => {
     const fetchTx = async () => {
       try {
         const res = await fetch("/api/transactions");
         const data = await res.json();
-        setTransactions(data);
-        setLoadingTx(false);
-      } catch {
-        setLoadingTx(false);
-      }
+        setTransactions((prev) => [...prev, ...data]);
+      } catch {}
+      setLoadingTx(false);
     };
+
     fetchTx();
     const interval = setInterval(fetchTx, 15000);
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch live coins
+  // 🔹 Add pending deposit transaction
+  const addPendingTransaction = () => {
+    const pendingTx = {
+      id: `pending-${Date.now()}`,
+      time: new Date().toISOString(),
+      side: "deposit",
+      amount: "PENDING",
+      price: "PENDING",
+      status: "pending",
+    };
+    setTransactions((prev) => [pendingTx, ...prev]);
+  };
+
+  // 🔹 Handle MAX button for withdraw
+  const handleMax = () => setWithdrawAmount(totalBalanceBTC.toString());
+
+  // 🔹 Fetch live coins
   useEffect(() => {
     const fetchCoins = async () => {
       try {
@@ -112,36 +143,36 @@ const Dashboard: NextPage = () => {
         );
         const data = await res.json();
 
-        const formatted: Coin[] = data.map((c: any, i: number) => ({
-          rank: i + 1,
-          name: c.name,
-          symbol: c.symbol.toUpperCase(),
-          price: c.current_price,
-          change1h: c.price_change_percentage_1h_in_currency || 0,
-          change24h: c.price_change_percentage_24h_in_currency || 0,
-          change7d: c.price_change_percentage_7d_in_currency || 0,
-          marketCap: c.market_cap,
-          volume: c.total_volume,
-          circulating: `${c.circulating_supply?.toLocaleString()} ${c.symbol.toUpperCase()}`,
-          sparkline: c.sparkline_in_7d?.price || [],
-          sparkColor:
-            c.price_change_percentage_7d_in_currency >= 0 ? "#10b981" : "#ef4444",
-          icon: c.symbol.toUpperCase()[0],
-        }));
-
-        setCoins(formatted);
-      } catch (err) {
-        console.error("Error fetching coins:", err);
-      } finally {
+        setCoins(
+          data.map((c: any, i: number) => ({
+            rank: i + 1,
+            name: c.name,
+            symbol: c.symbol.toUpperCase(),
+            price: c.current_price,
+            change1h: c.price_change_percentage_1h_in_currency || 0,
+            change24h: c.price_change_percentage_24h_in_currency || 0,
+            change7d: c.price_change_percentage_7d_in_currency || 0,
+            marketCap: c.market_cap,
+            volume: c.total_volume,
+            circulating: `${c.circulating_supply?.toLocaleString()} ${c.symbol.toUpperCase()}`,
+            sparkline: c.sparkline_in_7d?.price || [],
+            sparkColor:
+              c.price_change_percentage_7d_in_currency >= 0
+                ? "#10b981"
+                : "#ef4444",
+            icon: c.symbol.toUpperCase()[0],
+          }))
+        );
+      } catch {} finally {
         setLoadingCoins(false);
       }
     };
+
     fetchCoins();
     const interval = setInterval(fetchCoins, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  // Copy BTC address
   const copyAddress = () => {
     navigator.clipboard.writeText(btcAddress);
     alert("BTC address copied!");
@@ -156,29 +187,54 @@ const Dashboard: NextPage = () => {
         <div className="popup-overlay">
           <div className="popup deposit-popup">
             <h3>RECEIVE BTC</h3>
-            <p>Send Bitcoin to your address:</p>
-
-            {/* IMAGE SPACE */}
-            <div className="btc-image">
-              <Image
-                src="/btc-placeholder.png"
-                alt="BTC QR Code"
-                width={200}
-                height={200}
-              />
-            </div>
-
+            <p>Scan the QR code or copy the address below to receive BTC</p>
+            <Image src="/btc-placeholder.png" alt="QR" width={200} height={200} />
             <div className="btc-address">
-              <input type="text" value={btcAddress} readOnly />
+              <input value={btcAddress} readOnly />
               <button onClick={copyAddress}>Copy</button>
             </div>
-            <p>This address can only be used to receive compatible tokens.</p>
-            <button
-              className="close-btn"
-              onClick={() => setShowDeposit(false)}
-            >
+            <p>This address is for receiving BTC only</p>
+            <button className="close-btn" onClick={() => setShowDeposit(false)}>
               Close
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Withdraw Modal */}
+      {showWithdraw && (
+        <div className="popup-overlay">
+          <div className="popup withdraw-popup">
+            <div className="btc-icon">
+              <Image src="/btc-logo.png" alt="BTC" width={100} height={60} />
+            </div>
+            <h3>Withdraw BTC</h3>
+            <input
+              placeholder="Recipient's Bitcoin address"
+              value={withdrawAddress}
+              onChange={(e) => setWithdrawAddress(e.target.value)}
+            />
+            <div className="amount-row">
+              <input
+                type="number"
+                placeholder="Amount"
+                value={withdrawAmount}
+                onChange={(e) => setWithdrawAmount(e.target.value)}
+              />
+              {/* <span className="btc-label">BTC</span> */}
+              <button className="max-btn" onClick={handleMax}>
+                MAX
+              </button>
+            </div>
+            <p className="available">
+              Available: <strong>{totalBalanceBTC} BTC</strong>
+            </p>
+            <div className="withdraw-actions">
+              <button className="confirm-btn">Withdraw</button>
+              <button className="close-btn" onClick={() => setShowWithdraw(false)}>
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -192,92 +248,104 @@ const Dashboard: NextPage = () => {
       </section>
 
       <main className="dashboard-container">
-        {/* Balance Cards */}
+        {/* Balances */}
         <section className="balance-grid">
           <div className="balance-card total">
             <h3>Total Balance</h3>
             <p className="btc">{totalBalanceBTC} BTC</p>
-            <p className="usd">${(totalBalanceBTC * btcPrice).toLocaleString()}</p>
+            <p className="usd">$0</p>
+
             <div className="action-buttons">
               <button
                 className="deposit-btn"
-                onClick={() => setShowDeposit(true)}
+                onClick={() => {
+                  setShowDeposit(true);
+                  addPendingTransaction();
+                }}
               >
                 Deposit
               </button>
-              <button className="withdraw-btn">Withdraw</button>
+              <button className="withdraw-btn" onClick={() => setShowWithdraw(true)}>
+                Withdraw
+              </button>
             </div>
           </div>
 
           <div className="balance-card">
             <h3>Asset Balance</h3>
             <p className="btc">{assetBalanceBTC} BTC</p>
-            <p className="usd">${(assetBalanceBTC * btcPrice).toLocaleString()}</p>
+            <p className="usd">$0</p>
           </div>
 
           <div className="balance-card">
             <h3>Exchange Balance</h3>
             <p className="btc">{exchangeBalanceBTC} BTC</p>
-            <p className="usd">${(exchangeBalanceBTC * btcPrice).toLocaleString()}</p>
+            <p className="usd">$0</p>
           </div>
         </section>
 
-        {/* BTC Price Chart */}
+        {/* Chart */}
         {chartData && (
           <section className="main-stat-card">
-            <h2 className="section-title">Bitcoin Price (24h)</h2>
             <Line data={chartData} />
           </section>
         )}
 
-        {/* Recent Transactions */}
+        {/* Transactions */}
         <section className="main-stat-card">
           <h2 className="section-title">Recent Bitcoin Transactions</h2>
           {loadingTx ? (
-            <p>Loading transactions...</p>
+            <p>Loading...</p>
           ) : (
-            <div className="tx-table-wrapper">
-              <table className="tx-table">
-                <thead>
-                  <tr>
-                    <th>Time</th>
-                    <th>Side</th>
-                    <th>Amount (BTC)</th>
-                    <th>Price (USD)</th>
+            <table className="tx-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Side</th>
+                  <th>Amount</th>
+                  <th>Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions.map((tx) => (
+                  <tr key={tx.id}>
+                    <td>{new Date(tx.time).toLocaleTimeString()}</td>
+                    <td style={{ color: "#facc15" }}>
+                      {tx.side.toUpperCase()}
+                    </td>
+                    <td>
+                      {tx.amount === "PENDING" ? (
+                        <span className="pending-dots">
+                          Pending
+                          <span className="dot">.</span>
+                          <span className="dot">.</span>
+                          <span className="dot">.</span>
+                        </span>
+                      ) : (
+                        tx.amount
+                      )}
+                    </td>
+                    <td>
+                      {tx.price === "PENDING"
+                        ? <span className="pending-dots">
+                            PENDING
+                            <span className="dot">.</span>
+                            <span className="dot">.</span>
+                            <span className="dot">.</span>
+                          </span>
+                        : `$${tx.price.toLocaleString()}`}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {transactions.map((tx) => (
-                    <tr key={tx.id}>
-                      <td>{new Date(tx.time).toLocaleTimeString()}</td>
-                      <td
-                        style={{
-                          color: tx.side === "buy" ? "#00F5D4" : "#FF5C5C",
-                        }}
-                      >
-                        {tx.side.toUpperCase()}
-                      </td>
-                      <td>{tx.amount}</td>
-                      <td>${tx.price.toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           )}
         </section>
 
-        {/* Live Crypto Table */}
+        {/* Crypto Table */}
         <section className="main-stat-card">
           <h2 className="section-title">Top Cryptocurrencies</h2>
-          {loadingCoins ? (
-            <div className="table-loading">
-              <div className="spinner"></div>
-              <p>Updating live data...</p>
-            </div>
-          ) : (
-            <CryptoTable coins={coins} />
-          )}
+          <CryptoTable coins={coins} />
         </section>
       </main>
 
