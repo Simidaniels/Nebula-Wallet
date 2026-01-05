@@ -6,12 +6,22 @@ const Footer = () => {
     <footer className="footer">
       <div className="footer-container">
         {/* BRAND */}
-        <div className="footer-brand">
-          <h3>NebulaWallet</h3>
-          <p>
-            A secure, non-custodial Bitcoin wallet built for global access.
-            Own your keys. Control your future.
+        <div className="dashboard-links-brand">
+          <div className="dashboard-brand-row">
+            <div className="dashboard-brand-logo">N</div>
+            <span className="dashboard-brand-name">NebulaWallet</span>
+          </div>
+
+          <p className="dashboard-brand-description">
+            NebulaWallet is a secure, non-custodial Bitcoin wallet built for
+            global access. You always control your private keys and assets. 
           </p>
+
+          <div className="dashboard-trust-badges">
+            <span className="dashboard-trust-badge">Self-Custody</span>
+            <span className="dashboard-trust-badge">Bitcoin-Only</span>
+            <span className="dashboard-trust-badge">Open Standards</span>
+          </div>
         </div>
 
         {/* PRODUCT */}

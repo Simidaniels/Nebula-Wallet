@@ -2,7 +2,8 @@ import type { NextPage } from "next";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import DashboardNavbar from "../components/DashboardNavbar";
-import Footer from "../components/Footer";
+import DashboardLinksFooter from "../components/DashboardLinksFooter";
+import Footer from "../components/DashboardFooter";
 import CryptoTable from "../components/CryptoTable";
 import { Coin } from "../pages/api/coins";
 
@@ -348,7 +349,7 @@ const Dashboard: NextPage = () => {
           <CryptoTable coins={coins} />
         </section>
       </main>
-
+<DashboardLinksFooter />
       <Footer />
     </div>
   );

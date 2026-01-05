@@ -12,7 +12,10 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <Link href="/">
-        <h1 className="logo">NebulaWallet</h1>
+        <div className="dashboard-brand-row">
+            <div className="dashboard-brand-logo">N</div>
+            <span className="logo">NebulaWallet</span>
+          </div>
       </Link>
       <div className="nav-buttons">
         {!user && (
