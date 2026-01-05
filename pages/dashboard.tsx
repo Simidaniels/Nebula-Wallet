@@ -1,6 +1,8 @@
 import type { NextPage } from "next";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+
 import DashboardNavbar from "../components/DashboardNavbar";
 import DashboardLinksFooter from "../components/DashboardLinksFooter";
 import Footer from "../components/DashboardFooter";
@@ -18,35 +20,24 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Filler
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
 
 const Dashboard: NextPage = () => {
-  const btcPrice = 90068;
+  const router = useRouter();
 
-  // 🔹 Balances (start at zero)
+  const [username, setUsername] = useState("User");
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [loadingTx, setLoadingTx] = useState(true);
+
   const [totalBalanceBTC, setTotalBalanceBTC] = useState(0);
   const [assetBalanceBTC] = useState(0);
   const [exchangeBalanceBTC] = useState(0);
 
   const [chartData, setChartData] = useState<any>(null);
-  const [transactions, setTransactions] = useState<any[]>([]);
-  const [loadingTx, setLoadingTx] = useState(true);
-
   const [coins, setCoins] = useState<Coin[]>([]);
   const [loadingCoins, setLoadingCoins] = useState(true);
-  const [username, setUsername] = useState("User");
 
-  // 🔹 Deposit modal
   const [showDeposit, setShowDeposit] = useState(false);
-
-  // 🔹 Withdraw modal
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [withdrawAddress, setWithdrawAddress] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
@@ -54,55 +45,60 @@ const Dashboard: NextPage = () => {
   const btcAddress =
     "bc1pz5jxatjcknvy3na95hhlj3hltptvltld0pxdnx96qsteymhjqqlqf56y5d";
 
-  // 🔹 Get username
+  // ---------------- Logout ----------------
+  const handleLogout = () => {
+    // Clear transactions for this user
+    localStorage.removeItem(`transactions_${username}`);
+    localStorage.removeItem("currentUser");
+    router.push("/login");
+  };
+
+  // ---------------- Load user & transactions ----------------
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
-    if (user?.username) setUsername(user.username);
-    else if (user?.name) setUsername(user.name);
+    const name = user?.username || user?.name || "User";
+    setUsername(name);
 
-    // 🔹 Load transactions from localStorage (persist on logout/login)
-    const savedTx = JSON.parse(localStorage.getItem("transactions") || "[]");
+    const savedTx = JSON.parse(localStorage.getItem(`transactions_${name}`) || "[]");
     if (savedTx.length > 0) setTransactions(savedTx);
   }, []);
 
-  // 🔹 Save transactions to localStorage whenever they change
+  // ---------------- Save transactions per user ----------------
   useEffect(() => {
-    localStorage.setItem("transactions", JSON.stringify(transactions));
-  }, [transactions]);
+    localStorage.setItem(`transactions_${username}`, JSON.stringify(transactions));
+  }, [transactions, username]);
 
-  // 🔹 BTC price chart
+  // ---------------- BTC Chart ----------------
   useEffect(() => {
     const fetchChart = async () => {
-      const res = await fetch(
-        "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1"
-      );
-      const data = await res.json();
+      try {
+        const res = await fetch(
+          "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1"
+        );
+        const data = await res.json();
 
-      setChartData({
-        labels: data.prices.map((p: any) => {
-          const d = new Date(p[0]);
-          return `${d.getHours()}:${d
-            .getMinutes()
-            .toString()
-            .padStart(2, "0")}`;
-        }),
-        datasets: [
-          {
-            label: "BTC Price (USD)",
-            data: data.prices.map((p: any) => p[1]),
-            borderColor: "#10b981",
-            backgroundColor: "rgba(16,185,129,0.15)",
-            tension: 0.4,
-            fill: true,
-          },
-        ],
-      });
+        setChartData({
+          labels: data.prices.map((p: any) => {
+            const d = new Date(p[0]);
+            return `${d.getHours()}:${d.getMinutes().toString().padStart(2, "0")}`;
+          }),
+          datasets: [
+            {
+              label: "BTC Price (USD)",
+              data: data.prices.map((p: any) => p[1]),
+              borderColor: "#10b981",
+              backgroundColor: "rgba(16,185,129,0.15)",
+              tension: 0.4,
+              fill: true,
+            },
+          ],
+        });
+      } catch {}
     };
-
     fetchChart();
   }, []);
 
-  // 🔹 Fetch transactions from API periodically
+  // ---------------- Fetch transactions periodically ----------------
   useEffect(() => {
     const fetchTx = async () => {
       try {
@@ -118,7 +114,7 @@ const Dashboard: NextPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // 🔹 Add pending deposit transaction
+  // ---------------- Add pending deposit ----------------
   const addPendingTransaction = () => {
     const pendingTx = {
       id: `pending-${Date.now()}`,
@@ -131,10 +127,10 @@ const Dashboard: NextPage = () => {
     setTransactions((prev) => [pendingTx, ...prev]);
   };
 
-  // 🔹 Handle MAX button for withdraw
+  // ---------------- Handle MAX ----------------
   const handleMax = () => setWithdrawAmount(totalBalanceBTC.toString());
 
-  // 🔹 Fetch live coins
+  // ---------------- Fetch coins ----------------
   useEffect(() => {
     const fetchCoins = async () => {
       try {
@@ -157,10 +153,7 @@ const Dashboard: NextPage = () => {
             volume: c.total_volume,
             circulating: `${c.circulating_supply?.toLocaleString()} ${c.symbol.toUpperCase()}`,
             sparkline: c.sparkline_in_7d?.price || [],
-            sparkColor:
-              c.price_change_percentage_7d_in_currency >= 0
-                ? "#10b981"
-                : "#ef4444",
+            sparkColor: c.price_change_percentage_7d_in_currency >= 0 ? "#10b981" : "#ef4444",
             icon: c.symbol.toUpperCase()[0],
           }))
         );
@@ -179,9 +172,10 @@ const Dashboard: NextPage = () => {
     alert("BTC address copied!");
   };
 
+  // ---------------- JSX ----------------
   return (
     <div className="dashboard-page">
-      <DashboardNavbar />
+      <DashboardNavbar onLogout={handleLogout} />
 
       {/* Deposit Modal */}
       {showDeposit && (
@@ -222,7 +216,6 @@ const Dashboard: NextPage = () => {
                 value={withdrawAmount}
                 onChange={(e) => setWithdrawAmount(e.target.value)}
               />
-              {/* <span className="btc-label">BTC</span> */}
               <button className="max-btn" onClick={handleMax}>
                 MAX
               </button>
@@ -240,7 +233,6 @@ const Dashboard: NextPage = () => {
         </div>
       )}
 
-      {/* Dashboard Header */}
       <section className="dashboard-header">
         <h1 className="dashboard-heading">Dashboard</h1>
         <p className="dashboard-welcome">
@@ -255,7 +247,6 @@ const Dashboard: NextPage = () => {
             <h3>Total Balance</h3>
             <p className="btc">{totalBalanceBTC} BTC</p>
             <p className="usd">$0</p>
-
             <div className="action-buttons">
               <button
                 className="deposit-btn"
@@ -311,14 +302,11 @@ const Dashboard: NextPage = () => {
                 {transactions.map((tx) => (
                   <tr key={tx.id}>
                     <td>{new Date(tx.time).toLocaleTimeString()}</td>
-                    <td style={{ color: "#facc15" }}>
-                      {tx.side.toUpperCase()}
-                    </td>
+                    <td style={{ color: "#facc15" }}>{tx.side.toUpperCase()}</td>
                     <td>
                       {tx.amount === "PENDING" ? (
                         <span className="pending-dots">
-                          Pending
-                          <span className="dot">.</span>
+                          Pending<span className="dot">.</span>
                           <span className="dot">.</span>
                           <span className="dot">.</span>
                         </span>
@@ -327,14 +315,15 @@ const Dashboard: NextPage = () => {
                       )}
                     </td>
                     <td>
-                      {tx.price === "PENDING"
-                        ? <span className="pending-dots">
-                            PENDING
-                            <span className="dot">.</span>
-                            <span className="dot">.</span>
-                            <span className="dot">.</span>
-                          </span>
-                        : `$${tx.price.toLocaleString()}`}
+                      {tx.price === "PENDING" ? (
+                        <span className="pending-dots">
+                          PENDING<span className="dot">.</span>
+                          <span className="dot">.</span>
+                          <span className="dot">.</span>
+                        </span>
+                      ) : (
+                        `$${tx.price.toLocaleString()}`
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -349,7 +338,8 @@ const Dashboard: NextPage = () => {
           <CryptoTable coins={coins} />
         </section>
       </main>
-<DashboardLinksFooter />
+
+      <DashboardLinksFooter />
       <Footer />
     </div>
   );

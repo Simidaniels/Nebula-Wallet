@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/router";
 
-const DashboardNavbar = () => {
+type DashboardNavbarProps = {
+  onLogout: () => void; // Passed this from Dashboard.tsx to clear transactions on logout
+};
+
+const DashboardNavbar: React.FC<DashboardNavbarProps> = ({ onLogout }) => {
   const router = useRouter();
 
   const [showProfile, setShowProfile] = useState(false);
@@ -13,22 +16,17 @@ const DashboardNavbar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("currentUser");
+    onLogout(); // Clear dashboard state (transactions)
     router.push("/login");
   };
 
-  /* Close dropdowns when clicking outside */
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (
-        profileRef.current &&
-        !profileRef.current.contains(e.target as Node)
-      ) {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
         setShowProfile(false);
       }
-      if (
-        settingsRef.current &&
-        !settingsRef.current.contains(e.target as Node)
-      ) {
+      if (settingsRef.current && !settingsRef.current.contains(e.target as Node)) {
         setShowSettings(false);
       }
     };
@@ -39,29 +37,20 @@ const DashboardNavbar = () => {
 
   return (
     <nav className="dashboard-navbar">
-      {/* LEFT */}
-      {/* <div className="nav-left">
-        <Link href="/dashboard" className="logo">
-          NebulaWallet
-        </Link>
-      </div> */}
+      {/* LEFT: Logo */}
+      <div className="dashboard-brand-row">
+        <div className="dashboard-brand-logo">N</div>
+        <span className="logo">NebulaWallet</span>
+      </div>
 
-
-          <div className="dashboard-brand-row">
-            <div className="dashboard-brand-logo">N</div>
-            <span className="logo">NebulaWallet</span>
-          </div>
-
-      {/* RIGHT */}
+      {/* RIGHT: Search, Notifications, Settings, Profile */}
       <div className="nav-right">
-        {/* Search */}
         <input
           type="text"
           placeholder="Search transactions, blocks..."
           className="nav-search"
         />
 
-        {/* Notifications */}
         <button className="nav-icon" title="Notifications">
           🔔
         </button>
@@ -102,7 +91,6 @@ const DashboardNavbar = () => {
               <button className="dropdown-item">Change Username</button>
               <button className="dropdown-item">Change Password</button>
               <button className="dropdown-item">Verify Email</button>
-              {/* Add more profile options here */}
             </div>
           )}
         </div>
