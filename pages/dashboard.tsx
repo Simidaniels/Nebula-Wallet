@@ -227,7 +227,7 @@ const Dashboard: NextPage = () => {
         </p>
       </section>
 
-      {/* Balance Grid */}
+      {/* TotalBalance Grid */}
       <main className="dashboard-container">
         <section className="balance-grid">
           <div className="balance-card total">
@@ -266,8 +266,8 @@ const Dashboard: NextPage = () => {
                 setTotalBalanceBTC((prev) => +(prev + amount).toFixed(8))
               }
             />
-            <TrendingGainers />
           </div>
+            {/* <TrendingGainers /> */}
         </section>
 
         {/* Deposit Modal */}
@@ -355,6 +355,7 @@ const Dashboard: NextPage = () => {
             </div>
           </div>
         )}
+{/* <TrendingGainers /> */}
 
         {/* Chart */}
         {chartData && (
@@ -427,6 +428,9 @@ const Dashboard: NextPage = () => {
             </>
           )}
         </section>
+
+            <TrendingGainers />
+
 
         {/* Crypto Table */}
         <section className="main-stat-card">
