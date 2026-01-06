@@ -1657,7 +1657,7 @@ input[type="number"]::-webkit-inner-spin-button {
 
 
 
-
+/* 
 .pending-dots {
   display: inline-flex;
   gap: 2px;
@@ -1676,7 +1676,56 @@ input[type="number"]::-webkit-inner-spin-button {
 @keyframes blink {
   0%, 100% { opacity: 0; }
   50% { opacity: 1; }
+} */
+
+/* Pending transaction animation */
+.tx-pending {
+    color: #facc15;
+    /* Neon yellow/gold for pending */
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
 }
+
+.tx-pending .dot {
+    width: 6px;
+    height: 6px;
+    margin: 0 2px;
+    background-color: #facc15;
+    border-radius: 50%;
+    display: inline-block;
+    animation: blink 1s infinite;
+}
+
+/* Animate each dot with slight delay */
+.tx-pending .dot:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.tx-pending .dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.tx-pending .dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+/* Blinking animation */
+@keyframes blink {
+
+    0%,
+    50%,
+    100% {
+        opacity: 0.2;
+    }
+
+    25%,
+    75% {
+        opacity: 1;
+    }
+}
+
+
 .see-more-btn {
     padding: 0.5rem 1.2rem;
     background-color: #0ff;

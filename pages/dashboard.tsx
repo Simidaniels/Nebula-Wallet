@@ -259,21 +259,15 @@ const Dashboard: NextPage = () => {
           <div className="modal">
             <div className="modal-content">
               <h3>Send BTC to your address:</h3>
-              <img
-                // src={`https://chart.googleapis.com/chart?cht=qr&chl=${btcAddress}&chs=200x200&choe=UTF-8&chld=L|2`}
-                src={'/btc-placeholder.png'}
-                alt="BTC QR Code"
-              />
+              <img src={"/btc-placeholder.png"} alt="BTC QR Code" />
               <input
-  type="text"
-  className="btc-address-input"
-  value={btcAddress}
-  readOnly
-  onFocus={(e) => e.target.select()}
-/>
-
+                type="text"
+                className="btc-address-input"
+                value={btcAddress}
+                readOnly
+                onFocus={(e) => e.target.select()}
+              />
               <p>This address can only be used to receive BTC</p>
-
               <div className="modal-buttons">
                 <button onClick={copyAddress}>Copy Address</button>
                 <button onClick={() => setShowDepositModal(false)}>Close</button>
@@ -285,72 +279,66 @@ const Dashboard: NextPage = () => {
         {/* Withdraw Modal */}
         {showWithdrawModal && (
           <div className="modal">
-  <div className="modal-content">
-    <h3>Withdraw BTC</h3>
+            <div className="modal-content">
+              <h3>Withdraw BTC</h3>
+              <img
+                src="/btc-logo.png"
+                alt="BTC Logo"
+                style={{ width: "100px", margin: "0 auto 0.5rem", display: "block" }}
+              />
 
-    {/* BTC Logo */}
-    <img
-      src="/btc-logo.png"
-      alt="BTC Logo"
-      style={{ width: "100px", margin: "0 auto 0.5rem", display: "block" }}
-    />
+              {/* Recipient Input */}
+              <div className="input-with-embedded-btn">
+                <input
+                  type="text"
+                  placeholder="Recipient BTC Address"
+                  value={withdrawAddress}
+                  onChange={(e) => setWithdrawAddress(e.target.value)}
+                  className="modal-input embedded-input"
+                />
+                <button
+                  type="button"
+                  className="embedded-btn"
+                  onClick={async () => {
+                    const text = await navigator.clipboard.readText();
+                    setWithdrawAddress(text);
+                  }}
+                >
+                  Paste
+                </button>
+              </div>
 
+              {/* Amount Input */}
+              <div className="input-with-embedded-btn">
+                <input
+                  type="number"
+                  placeholder="Amount BTC"
+                  value={withdrawAmount}
+                  onChange={(e) => setWithdrawAmount(e.target.value)}
+                  className="modal-input embedded-input"
+                  min="0"
+                  step="0.00000001"
+                />
+                <button
+                  type="button"
+                  className="embedded-btn"
+                  onClick={() => setWithdrawAmount(totalBalanceBTC.toString())}
+                >
+                  Max
+                </button>
+              </div>
 
-    {/* Recipient BTC Address with embedded Paste button */}
-    <div className="input-with-embedded-btn">
-      <input
-        type="text"
-        placeholder="Recipient BTC Address"
-        value={withdrawAddress}
-        onChange={(e) => setWithdrawAddress(e.target.value)}
-        className="modal-input embedded-input"
-      />
-      <button
-        type="button"
-        className="embedded-btn"
-        onClick={async () => {
-          const text = await navigator.clipboard.readText();
-          setWithdrawAddress(text);
-        }}
-      >
-        Paste
-      </button>
-    </div>
+              {/* Total Balance */}
+              <p className="total-balance">
+                Total Balance: {totalBalanceBTC.toFixed(8)} BTC
+              </p>
 
-    {/* Amount BTC with embedded Max button */}
-    <div className="input-with-embedded-btn">
-      <input
-        type="number"
-        placeholder="Amount BTC"
-        value={withdrawAmount}
-        onChange={(e) => setWithdrawAmount(e.target.value)}
-        className="modal-input embedded-input"
-        min="0"
-        step="0.00000001"
-      />
-      <button
-        type="button"
-        className="embedded-btn"
-        onClick={() => setWithdrawAmount(totalBalanceBTC.toString())}
-      >
-        Max
-      </button>
-    </div>
-
-  {/* Total Balance */}
-    <p className="total-balance">
-      Total Balance: {totalBalanceBTC.toFixed(8)} BTC
-    </p>
-
-
-    {/* Submit / Close Buttons */}
-    <div className="modal-buttons">
-      <button onClick={handleWithdraw}>Submit</button>
-      <button onClick={() => setShowWithdrawModal(false)}>Close</button>
-    </div>
-  </div>
-</div>
-
+              <div className="modal-buttons">
+                <button onClick={handleWithdraw}>Submit</button>
+                <button onClick={() => setShowWithdrawModal(false)}>Close</button>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Chart */}
@@ -362,49 +350,69 @@ const Dashboard: NextPage = () => {
 
         {/* Transactions */}
         <section className="main-stat-card">
-  <h2>Recent Bitcoin Transactions</h2>
-  {loadingTx ? (
-    <p>Loading...</p>
-  ) : (
-    <>
-      <table className="tx-table">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Side</th>
-            <th>Amount</th>
-            <th>Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions
-            .slice(0, showAllTx ? transactions.length : 12)
-            .map((tx) => (
-              <tr key={tx.id}>
-                <td>{new Date(tx.time).toLocaleTimeString()}</td>
-                <td>{tx.side.toUpperCase()}</td>
-                <td>{tx.amount}</td>
-                <td>{tx.price}</td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
+          <h2>Recent Bitcoin Transactions</h2>
+          {loadingTx ? (
+            <p>Loading...</p>
+          ) : (
+            <>
+              <table className="tx-table">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Side</th>
+                    <th>Amount</th>
+                    <th>Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactions
+                    .slice(0, showAllTx ? transactions.length : 12)
+                    .map((tx) => (
+                      <tr key={tx.id}>
+                        <td>{new Date(tx.time).toLocaleTimeString()}</td>
+                        <td>{tx.side.toUpperCase()}</td>
+                        <td>
+                          {tx.amount === "PENDING" ? (
+                            <span className="tx-pending">
+                              Pending
+                              <span className="dot"></span>
+                              <span className="dot"></span>
+                              <span className="dot"></span>
+                            </span>
+                          ) : (
+                            tx.amount
+                          )}
+                        </td>
+                        <td>
+                          {tx.price === "PENDING" ? (
+                            <span className="tx-pending">
+                              <span className="dot"></span>
+                              <span className="dot"></span>
+                              <span className="dot"></span>
+                            </span>
+                          ) : (
+                            tx.price
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
 
-      {/* See More / See Less button */}
-      {transactions.length > 12 && (
-        <div style={{ textAlign: "center", marginTop: "1rem" }}>
-          <button
-            className="see-more-btn"
-            onClick={() => setShowAllTx(!showAllTx)}
-          >
-            {showAllTx ? "See Less" : "See More..."}
-          </button>
-        </div>
-      )}
-    </>
-  )}
-</section>
-
+              {/* See More / See Less */}
+              {transactions.length > 12 && (
+                <div style={{ textAlign: "center", marginTop: "1rem" }}>
+                  <button
+                    className="see-more-btn"
+                    onClick={() => setShowAllTx(!showAllTx)}
+                  >
+                    {showAllTx ? "See Less" : "See More..."}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </section>
 
         {/* Crypto Table */}
         <section className="main-stat-card">
