@@ -5,6 +5,8 @@ import { useRouter } from "next/router";
 
 import DashboardNavbar from "../components/DashboardNavbar";
 import DashboardLinksFooter from "../components/DashboardLinksFooter";
+import CoinMining from "../components/CoinMining";
+import TrendingGainers from "../components/TradingGainers";
 import Footer from "../components/DashboardFooter";
 import CryptoTable from "../components/CryptoTable";
 import { Coin } from "../pages/api/coins";
@@ -29,10 +31,7 @@ const Dashboard: NextPage = () => {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loadingTx, setLoadingTx] = useState(true);
 
-  const [totalBalanceBTC, setTotalBalanceBTC] = useState(0);
-  const [assetBalanceBTC] = useState(0);
-  const [exchangeBalanceBTC] = useState(0);
-
+  const [totalBalanceBTC] = useState(0);
   const [chartData, setChartData] = useState<any>(null);
   const [coins, setCoins] = useState<Coin[]>([]);
   const [loadingCoins, setLoadingCoins] = useState(true);
@@ -47,7 +46,6 @@ const Dashboard: NextPage = () => {
 
   // ---------------- Logout ----------------
   const handleLogout = () => {
-    // Clear transactions for this user
     localStorage.removeItem(`transactions_${username}`);
     localStorage.removeItem("currentUser");
     router.push("/login");
@@ -63,7 +61,7 @@ const Dashboard: NextPage = () => {
     if (savedTx.length > 0) setTransactions(savedTx);
   }, []);
 
-  // ---------------- Save transactions per user ----------------
+  // ---------------- Save transactions ----------------
   useEffect(() => {
     localStorage.setItem(`transactions_${username}`, JSON.stringify(transactions));
   }, [transactions, username]);
@@ -95,10 +93,11 @@ const Dashboard: NextPage = () => {
         });
       } catch {}
     };
+
     fetchChart();
   }, []);
 
-  // ---------------- Fetch transactions periodically ----------------
+  // ---------------- Fetch transactions ----------------
   useEffect(() => {
     const fetchTx = async () => {
       try {
@@ -114,21 +113,18 @@ const Dashboard: NextPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // ---------------- Add pending deposit ----------------
   const addPendingTransaction = () => {
-    const pendingTx = {
-      id: `pending-${Date.now()}`,
-      time: new Date().toISOString(),
-      side: "deposit",
-      amount: "PENDING",
-      price: "PENDING",
-      status: "pending",
-    };
-    setTransactions((prev) => [pendingTx, ...prev]);
+    setTransactions((prev) => [
+      {
+        id: `pending-${Date.now()}`,
+        time: new Date().toISOString(),
+        side: "deposit",
+        amount: "PENDING",
+        price: "PENDING",
+      },
+      ...prev,
+    ]);
   };
-
-  // ---------------- Handle MAX ----------------
-  const handleMax = () => setWithdrawAmount(totalBalanceBTC.toString());
 
   // ---------------- Fetch coins ----------------
   useEffect(() => {
@@ -136,7 +132,7 @@ const Dashboard: NextPage = () => {
       try {
         setLoadingCoins(true);
         const res = await fetch(
-          "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=true&price_change_percentage=1h,24h,7d"
+          "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=true"
         );
         const data = await res.json();
 
@@ -177,76 +173,22 @@ const Dashboard: NextPage = () => {
     <div className="dashboard-page">
       <DashboardNavbar onLogout={handleLogout} />
 
-      {/* Deposit Modal */}
-      {showDeposit && (
-        <div className="popup-overlay">
-          <div className="popup deposit-popup">
-            <h3>RECEIVE BTC</h3>
-            <p>Scan the QR code or copy the address below to receive BTC</p>
-            <Image src="/btc-placeholder.png" alt="QR" width={200} height={200} />
-            <div className="btc-address">
-              <input value={btcAddress} readOnly />
-              <button onClick={copyAddress}>Copy</button>
-            </div>
-            <p>This address is for receiving BTC only</p>
-            <button className="close-btn" onClick={() => setShowDeposit(false)}>
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Withdraw Modal */}
-      {showWithdraw && (
-        <div className="popup-overlay">
-          <div className="popup withdraw-popup">
-            <div className="btc-icon">
-              <Image src="/btc-logo.png" alt="BTC" width={100} height={60} />
-            </div>
-            <h3>Withdraw BTC</h3>
-            <input
-              placeholder="Recipient's Bitcoin address"
-              value={withdrawAddress}
-              onChange={(e) => setWithdrawAddress(e.target.value)}
-            />
-            <div className="amount-row">
-              <input
-                type="number"
-                placeholder="Amount"
-                value={withdrawAmount}
-                onChange={(e) => setWithdrawAmount(e.target.value)}
-              />
-              <button className="max-btn" onClick={handleMax}>
-                MAX
-              </button>
-            </div>
-            <p className="available">
-              Available: <strong>{totalBalanceBTC} BTC</strong>
-            </p>
-            <div className="withdraw-actions">
-              <button className="confirm-btn">Withdraw</button>
-              <button className="close-btn" onClick={() => setShowWithdraw(false)}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <section className="dashboard-header">
-        <h1 className="dashboard-heading">Dashboard</h1>
-        <p className="dashboard-welcome">
+        <h1>Dashboard</h1>
+        <p>
           Welcome, <span className="username">{username}</span>
         </p>
       </section>
 
       <main className="dashboard-container">
-        {/* Balances */}
+        {/* BALANCE GRID */}
         <section className="balance-grid">
+          {/* Total Balance */}
           <div className="balance-card total">
-            <h3>Total Balance</h3>
+            <h3>TOTAL BALANCE</h3>
             <p className="btc">{totalBalanceBTC} BTC</p>
             <p className="usd">$0</p>
+
             <div className="action-buttons">
               <button
                 className="deposit-btn"
@@ -263,16 +205,22 @@ const Dashboard: NextPage = () => {
             </div>
           </div>
 
-          <div className="balance-card">
-            <h3>Asset Balance</h3>
-            <p className="btc">{assetBalanceBTC} BTC</p>
-            <p className="usd">$0</p>
-          </div>
+          {/* Bitcoin Mining */}
+          {/* <div className="balance-card mining-card">
+            <h3>Bitcoin Mining</h3>
+            <p>Status: <span className="status active">Active</span></p>
+            <p>Hash Rate: <strong>120 TH/s</strong></p>
+            <p>Daily Yield: <strong>0.00042 BTC</strong></p>
+            <button className="mining-btn stop">Stop Mining</button>
+          </div> */}
+           <div className="dashboard-cards">
+      <CoinMining />
+      {/* Add other cards here */}
+    </div>
 
-          <div className="balance-card">
-            <h3>Exchange Balance</h3>
-            <p className="btc">{exchangeBalanceBTC} BTC</p>
-            <p className="usd">$0</p>
+          {/* Trending */}
+          <div className="balance-card trending-wrapper">
+            <TrendingGainers />
           </div>
         </section>
 
@@ -285,10 +233,8 @@ const Dashboard: NextPage = () => {
 
         {/* Transactions */}
         <section className="main-stat-card">
-          <h2 className="section-title">Recent Bitcoin Transactions</h2>
-          {loadingTx ? (
-            <p>Loading...</p>
-          ) : (
+          <h2>Recent Bitcoin Transactions</h2>
+          {loadingTx ? <p>Loading...</p> : (
             <table className="tx-table">
               <thead>
                 <tr>
@@ -302,29 +248,9 @@ const Dashboard: NextPage = () => {
                 {transactions.map((tx) => (
                   <tr key={tx.id}>
                     <td>{new Date(tx.time).toLocaleTimeString()}</td>
-                    <td style={{ color: "#facc15" }}>{tx.side.toUpperCase()}</td>
-                    <td>
-                      {tx.amount === "PENDING" ? (
-                        <span className="pending-dots">
-                          Pending<span className="dot">.</span>
-                          <span className="dot">.</span>
-                          <span className="dot">.</span>
-                        </span>
-                      ) : (
-                        tx.amount
-                      )}
-                    </td>
-                    <td>
-                      {tx.price === "PENDING" ? (
-                        <span className="pending-dots">
-                          PENDING<span className="dot">.</span>
-                          <span className="dot">.</span>
-                          <span className="dot">.</span>
-                        </span>
-                      ) : (
-                        `$${tx.price.toLocaleString()}`
-                      )}
-                    </td>
+                    <td>{tx.side.toUpperCase()}</td>
+                    <td>{tx.amount}</td>
+                    <td>{tx.price}</td>
                   </tr>
                 ))}
               </tbody>
@@ -334,7 +260,7 @@ const Dashboard: NextPage = () => {
 
         {/* Crypto Table */}
         <section className="main-stat-card">
-          <h2 className="section-title">Top Cryptocurrencies</h2>
+          <h2>Top Cryptocurrencies</h2>
           <CryptoTable coins={coins} />
         </section>
       </main>
