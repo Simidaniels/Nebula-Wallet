@@ -121,39 +121,51 @@ const Dashboard: NextPage = () => {
 
   // ---------------- Fetch coins ----------------
   useEffect(() => {
-    const fetchCoins = async () => {
-      try {
-        setLoadingCoins(true);
-        const res = await fetch(
-          "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=true"
-        );
-        const data = await res.json();
+  const fetchCoins = async () => {
+    try {
+      setLoadingCoins(true);
 
-        setCoins(
-          data.map((c: any, i: number) => ({
-            rank: i + 1,
-            name: c.name,
-            symbol: c.symbol.toUpperCase(),
-            price: c.current_price,
-            change1h: c.price_change_percentage_1h_in_currency || 0,
-            change24h: c.price_change_percentage_24h_in_currency || 0,
-            change7d: c.price_change_percentage_7d_in_currency || 0,
-            marketCap: c.market_cap,
-            volume: c.total_volume,
-            circulating: `${c.circulating_supply?.toLocaleString()} ${c.symbol.toUpperCase()}`,
-            sparkline: c.sparkline_in_7d?.price || [],
-            sparkColor: c.price_change_percentage_7d_in_currency >= 0 ? "#10b981" : "#ef4444",
-            icon: c.symbol.toUpperCase()[0],
-          }))
-        );
-      } catch {} finally {
-        setLoadingCoins(false);
-      }
-    };
-    fetchCoins();
-    const interval = setInterval(fetchCoins, 30000);
-    return () => clearInterval(interval);
-  }, []);
+      const res = await fetch(
+        "https://api.coingecko.com/api/v3/coins/markets?" +
+          "vs_currency=usd&order=market_cap_desc&per_page=10&page=1&" +
+          "sparkline=true&price_change_percentage=1h,24h,7d"
+      );
+
+      const data = await res.json();
+
+      setCoins(
+        data.map((c: any, i: number) => ({
+          rank: i + 1,
+          name: c.name,
+          symbol: c.symbol.toUpperCase(),
+          price: c.current_price,
+
+          // ✅ NOW THESE WILL BE REAL VALUES
+          change1h: c.price_change_percentage_1h_in_currency,
+          change24h: c.price_change_percentage_24h_in_currency,
+          change7d: c.price_change_percentage_7d_in_currency,
+
+          marketCap: c.market_cap,
+          volume: c.total_volume,
+          circulating: `${c.circulating_supply?.toLocaleString()} ${c.symbol.toUpperCase()}`,
+          sparkline: c.sparkline_in_7d?.price || [],
+          sparkColor:
+            c.price_change_percentage_7d_in_currency >= 0
+              ? "#10b981"
+              : "#ef4444",
+          icon: c.symbol.toUpperCase()[0],
+        }))
+      );
+    } finally {
+      setLoadingCoins(false);
+    }
+  };
+
+  fetchCoins();
+  const interval = setInterval(fetchCoins, 30000);
+  return () => clearInterval(interval);
+}, []);
+
 
   // ---------------- Pending Transaction ----------------
   const addPendingTransaction = () => {
