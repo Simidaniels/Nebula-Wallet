@@ -29,19 +29,18 @@ const Dashboard: NextPage = () => {
   const [username, setUsername] = useState("User");
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loadingTx, setLoadingTx] = useState(true);
+  const [showAllTx, setShowAllTx] = useState(false);
 
   const [totalBalanceBTC, setTotalBalanceBTC] = useState(0);
+  const [btcPriceUSD, setBtcPriceUSD] = useState(0);
   const [chartData, setChartData] = useState<any>(null);
   const [coins, setCoins] = useState<Coin[]>([]);
   const [loadingCoins, setLoadingCoins] = useState(true);
 
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
-
   const [withdrawAddress, setWithdrawAddress] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
-
-  const [showAllTx, setShowAllTx] = useState(false);
 
   const btcAddress = "bc1pz5jxatjcknvy3na95hhlj3hltptvltld0pxdnx96qsteymhjqqlqf56y5d";
 
@@ -51,30 +50,26 @@ const Dashboard: NextPage = () => {
     router.push("/login");
   };
 
-  // ---------------- Load user, transactions & balance ----------------
+  // ---------------- Load user & transactions ----------------
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
     const name = user?.username || user?.name || "User";
     setUsername(name);
 
     const savedTx = JSON.parse(localStorage.getItem(`transactions_${name}`) || "[]");
-    if (savedTx.length > 0) setTransactions(savedTx);
+    if (savedTx.length) setTransactions(savedTx);
 
     const savedBalance = parseFloat(localStorage.getItem(`totalBalance_${name}`) || "0");
     setTotalBalanceBTC(savedBalance);
   }, []);
 
-  // ---------------- Save transactions ----------------
+  // ---------------- Save transactions & balance ----------------
   useEffect(() => {
     localStorage.setItem(`transactions_${username}`, JSON.stringify(transactions));
-  }, [transactions, username]);
-
-  // ---------------- Save total balance ----------------
-  useEffect(() => {
     localStorage.setItem(`totalBalance_${username}`, totalBalanceBTC.toString());
-  }, [totalBalanceBTC, username]);
+  }, [transactions, totalBalanceBTC, username]);
 
-  // ---------------- BTC Chart ----------------
+  // ---------------- Fetch BTC chart & price ----------------
   useEffect(() => {
     const fetchChart = async () => {
       try {
@@ -83,22 +78,27 @@ const Dashboard: NextPage = () => {
         );
         const data = await res.json();
 
-        setChartData({
-          labels: data.prices.map((p: any) => {
-            const d = new Date(p[0]);
-            return `${d.getHours()}:${d.getMinutes().toString().padStart(2, "0")}`;
-          }),
-          datasets: [
-            {
-              label: "BTC Price (USD)",
-              data: data.prices.map((p: any) => p[1]),
-              borderColor: "#10b981",
-              backgroundColor: "rgba(16,185,129,0.15)",
-              tension: 0.4,
-              fill: true,
-            },
-          ],
-        });
+        if (data?.prices?.length) {
+          const latestPrice = data.prices[data.prices.length - 1][1];
+          setBtcPriceUSD(latestPrice);
+
+          setChartData({
+            labels: data.prices.map((p: any) => {
+              const d = new Date(p[0]);
+              return `${d.getHours()}:${d.getMinutes().toString().padStart(2, "0")}`;
+            }),
+            datasets: [
+              {
+                label: "BTC Price (USD)",
+                data: data.prices.map((p: any) => p[1]),
+                borderColor: "#10b981",
+                backgroundColor: "rgba(16,185,129,0.15)",
+                tension: 0.4,
+                fill: true,
+              },
+            ],
+          });
+        }
       } catch {}
     };
     fetchChart();
@@ -118,19 +118,6 @@ const Dashboard: NextPage = () => {
     const interval = setInterval(fetchTx, 15000);
     return () => clearInterval(interval);
   }, []);
-
-  const addPendingTransaction = () => {
-    setTransactions((prev) => [
-      {
-        id: `pending-${Date.now()}`,
-        time: new Date().toISOString(),
-        side: "deposit",
-        amount: "PENDING",
-        price: "PENDING",
-      },
-      ...prev,
-    ]);
-  };
 
   // ---------------- Fetch coins ----------------
   useEffect(() => {
@@ -168,13 +155,27 @@ const Dashboard: NextPage = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // ---------------- Pending Transaction ----------------
+  const addPendingTransaction = () => {
+    setTransactions((prev) => [
+      {
+        id: `pending-${Date.now()}`,
+        time: new Date().toISOString(),
+        side: "deposit",
+        amount: "PENDING",
+        price: "PENDING",
+      },
+      ...prev,
+    ]);
+  };
+
   // ---------------- Copy BTC Address ----------------
   const copyAddress = () => {
     navigator.clipboard.writeText(btcAddress);
     alert("BTC address copied!");
   };
 
-  // ---------------- Handle Withdraw Submit ----------------
+  // ---------------- Withdraw ----------------
   const handleWithdraw = () => {
     if (!withdrawAddress || !withdrawAmount) {
       alert("Please fill in both address and amount.");
@@ -184,7 +185,7 @@ const Dashboard: NextPage = () => {
       alert("Insufficient balance.");
       return;
     }
-    // Update balance
+
     setTotalBalanceBTC((prev) => +(prev - parseFloat(withdrawAmount)).toFixed(8));
     setTransactions((prev) => [
       {
@@ -206,6 +207,7 @@ const Dashboard: NextPage = () => {
     <div className="dashboard-page">
       <DashboardNavbar onLogout={handleLogout} />
 
+      {/* Header */}
       <section className="dashboard-header">
         <h1>Dashboard</h1>
         <p>
@@ -213,16 +215,21 @@ const Dashboard: NextPage = () => {
         </p>
       </section>
 
+      {/* Balance Grid */}
       <main className="dashboard-container">
         <section className="balance-grid">
-          {/* Total Balance */}
           <div className="balance-card total">
             <h3>TOTAL BALANCE</h3>
             <p className="btc">{totalBalanceBTC.toFixed(8)} BTC</p>
-            <p className="usd">$0</p>
+            <p className="usd">
+              ≈ $
+              {(totalBalanceBTC * btcPriceUSD).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </p>
 
             <div className="action-buttons">
-              {/* Deposit Button */}
               <button
                 className="action-btn deposit-btn"
                 onClick={() => {
@@ -232,8 +239,6 @@ const Dashboard: NextPage = () => {
               >
                 Deposit
               </button>
-
-              {/* Withdraw Button */}
               <button
                 className="action-btn withdraw-btn"
                 onClick={() => setShowWithdrawModal(true)}
@@ -243,7 +248,6 @@ const Dashboard: NextPage = () => {
             </div>
           </div>
 
-          {/* Dashboard cards */}
           <div className="dashboard-cards">
             <CoinMining
               onWithdraw={(amount) =>
@@ -287,7 +291,7 @@ const Dashboard: NextPage = () => {
                 style={{ width: "100px", margin: "0 auto 0.5rem", display: "block" }}
               />
 
-              {/* Recipient Input */}
+              {/* Recipient */}
               <div className="input-with-embedded-btn">
                 <input
                   type="text"
@@ -308,7 +312,7 @@ const Dashboard: NextPage = () => {
                 </button>
               </div>
 
-              {/* Amount Input */}
+              {/* Amount */}
               <div className="input-with-embedded-btn">
                 <input
                   type="number"
@@ -328,7 +332,6 @@ const Dashboard: NextPage = () => {
                 </button>
               </div>
 
-              {/* Total Balance */}
               <p className="total-balance">
                 Total Balance: {totalBalanceBTC.toFixed(8)} BTC
               </p>
@@ -399,7 +402,6 @@ const Dashboard: NextPage = () => {
                 </tbody>
               </table>
 
-              {/* See More / See Less */}
               {transactions.length > 12 && (
                 <div style={{ textAlign: "center", marginTop: "1rem" }}>
                   <button
