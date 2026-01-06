@@ -2096,3 +2096,21 @@ a {
 .mining-btn:hover {
     transform: translateY(-1px);
 }
+
+
+.mining-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.mining-btn.withdraw {
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+    color: #ffffff;
+}
+
+.mining-btn.withdraw:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

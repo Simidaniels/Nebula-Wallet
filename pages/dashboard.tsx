@@ -1,5 +1,4 @@
 import type { NextPage } from "next";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
@@ -31,27 +30,20 @@ const Dashboard: NextPage = () => {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loadingTx, setLoadingTx] = useState(true);
 
-  const [totalBalanceBTC] = useState(0);
+  const [totalBalanceBTC, setTotalBalanceBTC] = useState(0); // Persisted BTC balance
   const [chartData, setChartData] = useState<any>(null);
   const [coins, setCoins] = useState<Coin[]>([]);
   const [loadingCoins, setLoadingCoins] = useState(true);
 
-  const [showDeposit, setShowDeposit] = useState(false);
-  const [showWithdraw, setShowWithdraw] = useState(false);
-  const [withdrawAddress, setWithdrawAddress] = useState("");
-  const [withdrawAmount, setWithdrawAmount] = useState("");
-
-  const btcAddress =
-    "bc1pz5jxatjcknvy3na95hhlj3hltptvltld0pxdnx96qsteymhjqqlqf56y5d";
+  const btcAddress = "bc1pz5jxatjcknvy3na95hhlj3hltptvltld0pxdnx96qsteymhjqqlqf56y5d";
 
   // ---------------- Logout ----------------
   const handleLogout = () => {
-    localStorage.removeItem(`transactions_${username}`);
     localStorage.removeItem("currentUser");
     router.push("/login");
   };
 
-  // ---------------- Load user & transactions ----------------
+  // ---------------- Load user, transactions & balance ----------------
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
     const name = user?.username || user?.name || "User";
@@ -59,12 +51,20 @@ const Dashboard: NextPage = () => {
 
     const savedTx = JSON.parse(localStorage.getItem(`transactions_${name}`) || "[]");
     if (savedTx.length > 0) setTransactions(savedTx);
+
+    const savedBalance = parseFloat(localStorage.getItem(`totalBalance_${name}`) || "0");
+    setTotalBalanceBTC(savedBalance);
   }, []);
 
   // ---------------- Save transactions ----------------
   useEffect(() => {
     localStorage.setItem(`transactions_${username}`, JSON.stringify(transactions));
   }, [transactions, username]);
+
+  // ---------------- Save total balance ----------------
+  useEffect(() => {
+    localStorage.setItem(`totalBalance_${username}`, totalBalanceBTC.toString());
+  }, [totalBalanceBTC, username]);
 
   // ---------------- BTC Chart ----------------
   useEffect(() => {
@@ -163,12 +163,12 @@ const Dashboard: NextPage = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // ---------------- Copy BTC Address ----------------
   const copyAddress = () => {
     navigator.clipboard.writeText(btcAddress);
     alert("BTC address copied!");
   };
 
-  // ---------------- JSX ----------------
   return (
     <div className="dashboard-page">
       <DashboardNavbar onLogout={handleLogout} />
@@ -181,45 +181,32 @@ const Dashboard: NextPage = () => {
       </section>
 
       <main className="dashboard-container">
-        {/* BALANCE GRID */}
         <section className="balance-grid">
           {/* Total Balance */}
           <div className="balance-card total">
             <h3>TOTAL BALANCE</h3>
-            <p className="btc">{totalBalanceBTC} BTC</p>
+            <p className="btc">{totalBalanceBTC.toFixed(8)} BTC</p>
             <p className="usd">$0</p>
 
             <div className="action-buttons">
               <button
                 className="deposit-btn"
                 onClick={() => {
-                  setShowDeposit(true);
                   addPendingTransaction();
                 }}
               >
                 Deposit
               </button>
-              <button className="withdraw-btn" onClick={() => setShowWithdraw(true)}>
-                Withdraw
-              </button>
+              <button className="withdraw-btn">Withdraw</button>
             </div>
           </div>
 
-          {/* Bitcoin Mining */}
-          {/* <div className="balance-card mining-card">
-            <h3>Bitcoin Mining</h3>
-            <p>Status: <span className="status active">Active</span></p>
-            <p>Hash Rate: <strong>120 TH/s</strong></p>
-            <p>Daily Yield: <strong>0.00042 BTC</strong></p>
-            <button className="mining-btn stop">Stop Mining</button>
-          </div> */}
-           <div className="dashboard-cards">
-      <CoinMining />
-      {/* Add other cards here */}
-    </div>
+          {/* Dashboard cards */}
+          <div className="dashboard-cards">
+            {/* CoinMining updates totalBalanceBTC via onWithdraw */}
+            <CoinMining onWithdraw={(amount) => setTotalBalanceBTC((prev) => +(prev + amount).toFixed(8))} />
 
-          {/* Trending */}
-          <div className="balance-card trending-wrapper">
+            {/* Other cards */}
             <TrendingGainers />
           </div>
         </section>
@@ -234,7 +221,9 @@ const Dashboard: NextPage = () => {
         {/* Transactions */}
         <section className="main-stat-card">
           <h2>Recent Bitcoin Transactions</h2>
-          {loadingTx ? <p>Loading...</p> : (
+          {loadingTx ? (
+            <p>Loading...</p>
+          ) : (
             <table className="tx-table">
               <thead>
                 <tr>
