@@ -1677,7 +1677,32 @@ input[type="number"]::-webkit-inner-spin-button {
   0%, 100% { opacity: 0; }
   50% { opacity: 1; }
 }
+.see-more-btn {
+    padding: 0.5rem 1.2rem;
+    background-color: #0ff;
+    /* Neon cyan */
+    color: #111827;
+    /* Dark text for contrast */
+    font-weight: 700;
+    border: 2px solid #0ff;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0 5px #0ff;
+    /* subtle glow */
+}
 
+.see-more-btn:hover {
+    background-color: #0ff;
+    color: #111827;
+    box-shadow: 0 0 8px #0ff;
+    /* slightly stronger on hover */
+    /* transform: scale(1.03); */
+    /* slight pop effect */
+}
 
 
 

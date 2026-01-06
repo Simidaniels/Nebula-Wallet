@@ -41,6 +41,8 @@ const Dashboard: NextPage = () => {
   const [withdrawAddress, setWithdrawAddress] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
 
+  const [showAllTx, setShowAllTx] = useState(false);
+
   const btcAddress = "bc1pz5jxatjcknvy3na95hhlj3hltptvltld0pxdnx96qsteymhjqqlqf56y5d";
 
   // ---------------- Logout ----------------
@@ -360,32 +362,49 @@ const Dashboard: NextPage = () => {
 
         {/* Transactions */}
         <section className="main-stat-card">
-          <h2>Recent Bitcoin Transactions</h2>
-          {loadingTx ? (
-            <p>Loading...</p>
-          ) : (
-            <table className="tx-table">
-              <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>Side</th>
-                  <th>Amount</th>
-                  <th>Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transactions.map((tx) => (
-                  <tr key={tx.id}>
-                    <td>{new Date(tx.time).toLocaleTimeString()}</td>
-                    <td>{tx.side.toUpperCase()}</td>
-                    <td>{tx.amount}</td>
-                    <td>{tx.price}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </section>
+  <h2>Recent Bitcoin Transactions</h2>
+  {loadingTx ? (
+    <p>Loading...</p>
+  ) : (
+    <>
+      <table className="tx-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Side</th>
+            <th>Amount</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          {transactions
+            .slice(0, showAllTx ? transactions.length : 12)
+            .map((tx) => (
+              <tr key={tx.id}>
+                <td>{new Date(tx.time).toLocaleTimeString()}</td>
+                <td>{tx.side.toUpperCase()}</td>
+                <td>{tx.amount}</td>
+                <td>{tx.price}</td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+
+      {/* See More / See Less button */}
+      {transactions.length > 12 && (
+        <div style={{ textAlign: "center", marginTop: "1rem" }}>
+          <button
+            className="see-more-btn"
+            onClick={() => setShowAllTx(!showAllTx)}
+          >
+            {showAllTx ? "See Less" : "See More..."}
+          </button>
+        </div>
+      )}
+    </>
+  )}
+</section>
+
 
         {/* Crypto Table */}
         <section className="main-stat-card">
