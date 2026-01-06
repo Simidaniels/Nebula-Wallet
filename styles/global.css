@@ -256,7 +256,11 @@ a {
         flex-wrap: wrap;
     }
 }
-
+@media (max-width: 480px) {
+    .nav-buttons button {
+            display: none;
+        }
+}
 
 
 /* ---------------- Footer ---------------- */
@@ -354,8 +358,6 @@ a {
 
 /* ---------------- Auth Pages ---------------- */
 /* ---------------- Logins ---------------- */
-
-
 /* Container */
 .auth-complex {
     max-width: 420px;
@@ -551,10 +553,15 @@ a {
 /* Responsive */
 @media (max-width: 500px) {
     .auth-complex {
-        margin: 50px 16px;
-        padding: 32px;
+        margin-top: 15vh
+        /* padding: 32px; */
     }
 }
+
+
+
+
+
 
 
 /* ---------------- Dashboard ---------------- */
