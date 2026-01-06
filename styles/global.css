@@ -1844,19 +1844,13 @@ input[type="number"]::-webkit-inner-spin-button {
     border-radius: 14px;
     padding: 1rem;
 }
-
-.tg-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.75rem;
+.tg-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #e5f9f6;
+    margin-bottom: 1rem;
 }
 
-.tg-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
 
 .tg-list {
     list-style: none;
@@ -1870,15 +1864,13 @@ input[type="number"]::-webkit-inner-spin-button {
     padding: 0.6rem 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
-
+.tg-item span {
+    flex: 1;
+        justify-content: flex-end;
+        /* Right-aligned */
+}
 .tg-item:last-child {
     border-bottom: none;
-}
-
-.tg-right {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
 }
 
 .tg-percent.positive {
@@ -1887,6 +1879,25 @@ input[type="number"]::-webkit-inner-spin-button {
     align-items: center;
     gap: 0.25rem;
 }
+.trend-up {
+    background-color: rgba(0, 255, 0, 0.1);
+    transition: background-color 0.5s;
+}
+
+.trend-down {
+    background-color: rgba(255, 0, 0, 0.1);
+    transition: background-color 0.5s;
+}
+
+.tg-percent.positive {
+    color: green;
+}
+
+.tg-percent.negative {
+    color: red;
+}
+
+
 
 @media (max-width: 900px) {
     .tg-container {
