@@ -30,10 +30,16 @@ const Dashboard: NextPage = () => {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loadingTx, setLoadingTx] = useState(true);
 
-  const [totalBalanceBTC, setTotalBalanceBTC] = useState(0); // Persisted BTC balance
+  const [totalBalanceBTC, setTotalBalanceBTC] = useState(0);
   const [chartData, setChartData] = useState<any>(null);
   const [coins, setCoins] = useState<Coin[]>([]);
   const [loadingCoins, setLoadingCoins] = useState(true);
+
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+
+  const [withdrawAddress, setWithdrawAddress] = useState("");
+  const [withdrawAmount, setWithdrawAmount] = useState("");
 
   const btcAddress = "bc1pz5jxatjcknvy3na95hhlj3hltptvltld0pxdnx96qsteymhjqqlqf56y5d";
 
@@ -93,7 +99,6 @@ const Dashboard: NextPage = () => {
         });
       } catch {}
     };
-
     fetchChart();
   }, []);
 
@@ -107,7 +112,6 @@ const Dashboard: NextPage = () => {
       } catch {}
       setLoadingTx(false);
     };
-
     fetchTx();
     const interval = setInterval(fetchTx, 15000);
     return () => clearInterval(interval);
@@ -157,7 +161,6 @@ const Dashboard: NextPage = () => {
         setLoadingCoins(false);
       }
     };
-
     fetchCoins();
     const interval = setInterval(fetchCoins, 30000);
     return () => clearInterval(interval);
@@ -167,6 +170,34 @@ const Dashboard: NextPage = () => {
   const copyAddress = () => {
     navigator.clipboard.writeText(btcAddress);
     alert("BTC address copied!");
+  };
+
+  // ---------------- Handle Withdraw Submit ----------------
+  const handleWithdraw = () => {
+    if (!withdrawAddress || !withdrawAmount) {
+      alert("Please fill in both address and amount.");
+      return;
+    }
+    if (parseFloat(withdrawAmount) > totalBalanceBTC) {
+      alert("Insufficient balance.");
+      return;
+    }
+    // Update balance
+    setTotalBalanceBTC((prev) => +(prev - parseFloat(withdrawAmount)).toFixed(8));
+    setTransactions((prev) => [
+      {
+        id: `withdraw-${Date.now()}`,
+        time: new Date().toISOString(),
+        side: "withdraw",
+        amount: withdrawAmount,
+        price: "N/A",
+      },
+      ...prev,
+    ]);
+    alert("Withdrawal submitted!");
+    setWithdrawAddress("");
+    setWithdrawAmount("");
+    setShowWithdrawModal(false);
   };
 
   return (
@@ -189,27 +220,136 @@ const Dashboard: NextPage = () => {
             <p className="usd">$0</p>
 
             <div className="action-buttons">
+              {/* Deposit Button */}
               <button
-                className="deposit-btn"
+                className="action-btn deposit-btn"
                 onClick={() => {
                   addPendingTransaction();
+                  setShowDepositModal(true);
                 }}
               >
                 Deposit
               </button>
-              <button className="withdraw-btn">Withdraw</button>
+
+              {/* Withdraw Button */}
+              <button
+                className="action-btn withdraw-btn"
+                onClick={() => setShowWithdrawModal(true)}
+              >
+                Withdraw
+              </button>
             </div>
           </div>
 
           {/* Dashboard cards */}
           <div className="dashboard-cards">
-            {/* CoinMining updates totalBalanceBTC via onWithdraw */}
-            <CoinMining onWithdraw={(amount) => setTotalBalanceBTC((prev) => +(prev + amount).toFixed(8))} />
-
-            {/* Other cards */}
+            <CoinMining
+              onWithdraw={(amount) =>
+                setTotalBalanceBTC((prev) => +(prev + amount).toFixed(8))
+              }
+            />
             <TrendingGainers />
           </div>
         </section>
+
+        {/* Deposit Modal */}
+        {showDepositModal && (
+          <div className="modal">
+            <div className="modal-content">
+              <h3>Send BTC to your address:</h3>
+              <img
+                // src={`https://chart.googleapis.com/chart?cht=qr&chl=${btcAddress}&chs=200x200&choe=UTF-8&chld=L|2`}
+                src={'/btc-placeholder.png'}
+                alt="BTC QR Code"
+              />
+              <input
+  type="text"
+  className="btc-address-input"
+  value={btcAddress}
+  readOnly
+  onFocus={(e) => e.target.select()}
+/>
+
+              <p>This address can only be used to receive BTC</p>
+
+              <div className="modal-buttons">
+                <button onClick={copyAddress}>Copy Address</button>
+                <button onClick={() => setShowDepositModal(false)}>Close</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Withdraw Modal */}
+        {showWithdrawModal && (
+          <div className="modal">
+  <div className="modal-content">
+    <h3>Withdraw BTC</h3>
+
+    {/* BTC Logo */}
+    <img
+      src="/btc-logo.png"
+      alt="BTC Logo"
+      style={{ width: "100px", margin: "0 auto 0.5rem", display: "block" }}
+    />
+
+
+    {/* Recipient BTC Address with embedded Paste button */}
+    <div className="input-with-embedded-btn">
+      <input
+        type="text"
+        placeholder="Recipient BTC Address"
+        value={withdrawAddress}
+        onChange={(e) => setWithdrawAddress(e.target.value)}
+        className="modal-input embedded-input"
+      />
+      <button
+        type="button"
+        className="embedded-btn"
+        onClick={async () => {
+          const text = await navigator.clipboard.readText();
+          setWithdrawAddress(text);
+        }}
+      >
+        Paste
+      </button>
+    </div>
+
+    {/* Amount BTC with embedded Max button */}
+    <div className="input-with-embedded-btn">
+      <input
+        type="number"
+        placeholder="Amount BTC"
+        value={withdrawAmount}
+        onChange={(e) => setWithdrawAmount(e.target.value)}
+        className="modal-input embedded-input"
+        min="0"
+        step="0.00000001"
+      />
+      <button
+        type="button"
+        className="embedded-btn"
+        onClick={() => setWithdrawAmount(totalBalanceBTC.toString())}
+      >
+        Max
+      </button>
+    </div>
+
+  {/* Total Balance */}
+    <p className="total-balance">
+      Total Balance: {totalBalanceBTC.toFixed(8)} BTC
+    </p>
+
+
+    {/* Submit / Close Buttons */}
+    <div className="modal-buttons">
+      <button onClick={handleWithdraw}>Submit</button>
+      <button onClick={() => setShowWithdrawModal(false)}>Close</button>
+    </div>
+  </div>
+</div>
+
+        )}
 
         {/* Chart */}
         {chartData && (

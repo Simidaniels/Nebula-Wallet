@@ -4,8 +4,9 @@ interface CoinMiningProps {
   onWithdraw?: (amount: number) => void;
 }
 
-const MINING_INCREMENT = 0.00000001; // BTC per interval
-const MINING_INTERVAL = 2 * 60 * 60 * 1000; // 2 hours in ms
+// FAST TESTING SETTINGS
+const MINING_INCREMENT = 0.0000001; // BTC per interval (slightly bigger for faster accumulation)
+const MINING_INTERVAL = 100; // 100 ms interval
 const WITHDRAW_THRESHOLD = 0.00001; // Minimum yield to withdraw
 
 const CoinMining: React.FC<CoinMiningProps> = ({ onWithdraw }) => {

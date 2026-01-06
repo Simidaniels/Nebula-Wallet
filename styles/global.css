@@ -769,8 +769,8 @@ a {
 }
 
 .deposit-btn {
-    background: #00F5D4;
-    color: #0B0F1A;
+    background: #00F5D4 !important;
+    color: #0B0F1A !important;
     padding: .7rem 1.4rem;
     border: none;
     border-radius: .5rem;
@@ -779,14 +779,270 @@ a {
 }
 
 .withdraw-btn {
-    background: transparent;
-    color: #00F5D4;
+    background: transparent !important;
+    color: #00F5D4 !important;
     border: 1px solid #00F5D4;
     padding: .7rem 1.4rem;
     border-radius: .5rem;
     font-weight: bold;
     cursor: pointer;
 }
+
+
+/* ------------------ Action Buttons ------------------ */
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.action-btn {
+  padding: 0.6rem 1.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.deposit-btn {
+  background-color: #10b981;
+  color: #fff;
+}
+
+.deposit-btn:hover {
+  background-color: #059669;
+}
+
+.withdraw-btn {
+  background-color: #ef4444;
+  color: #fff;
+}
+
+.withdraw-btn:hover {
+  background-color: #dc2626;
+}
+
+/* ------------------ Modal Overlay ------------------ */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* ------------------ Modal Content ------------------ */
+.modal-content {
+  background-color: #1f2937;
+  color: #f9fafb;
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+.modal-content h3 {
+    margin-bottom: 1rem;
+}
+/* ------------------ BTC Address / QR ------------------ */
+/* .btc-address {
+  font-family: monospace;
+  background-color: #111827;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  word-break: break-all;
+  font-size: 0.9rem;
+} */
+.btc-address-input {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: none;
+    font-family: monospace;
+    font-size: 0.9rem;
+    background-color: #111827;
+    color: #f9fafb;
+    text-align: center;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.btc-address-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #10b981;
+}
+
+.modal-content img {
+  margin: 1rem 0;
+  border-radius: 8px;
+}
+
+/* ------------------ Modal Inputs ------------------ */
+.modal-input {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  margin: 0.5rem 0;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+/* Optional: subtle shadow for inputs */
+.modal-input:focus {
+  box-shadow: 0 0 0 2px #10b981;
+}
+
+.modal-content p {
+    margin: 1.5rem 0;
+    color: #b1b1b1;
+}
+
+/* ------------------ Modal Buttons ------------------ */
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.modal-buttons button {
+  padding: 0.6rem 1.5rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+
+
+/* Total balance text */
+.total-balance {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #d3d3d3;
+  /* font-weight: 600; */
+}
+
+/* Container for input + embedded button */
+.input-with-embedded-btn {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+/* Input field styling */
+.embedded-input {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  padding-right: 4.5rem; /* space for button inside */
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  box-sizing: border-box;
+  background-color: #111827;
+  color: #f9fafb;
+}
+/* Remove number input arrows */
+
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+/* input[type="number"] {
+    -moz-appearance: textfield;
+} */
+
+/* Embedded button inside input */
+.embedded-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #10b981;
+  border: none;
+  color: white;
+  padding: 0.35rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+}
+
+.embedded-btn:hover {
+  background-color: #059669;
+}
+
+
+
+
+/* Copy / Submit Button */
+.modal-buttons button:first-child {
+  background-color: #10b981;
+  color: white;
+}
+
+.modal-buttons button:first-child:hover {
+  background-color: #059669;
+}
+
+/* Close Button */
+.modal-buttons button:last-child {
+  background-color: #ef4444;
+  color: white;
+}
+
+.modal-buttons button:last-child:hover {
+  background-color: #dc2626;
+}
+/* Remove scrollbar for input fields */
+.btc-address-input,
+.modal-input {
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE 10+ */
+}
+
+.btc-address-input::-webkit-scrollbar,
+.modal-input::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Edge */
+}
+/* ------------------ Responsive ------------------ */
+@media (max-width: 500px) {
+  .modal-content {
+    padding: 1.5rem;
+  }
+  .action-btn {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+  .modal-input {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.8rem;
+  }
+}
+
 
 /* Main Stat Cards */
 .main-stat-card {
@@ -1088,21 +1344,22 @@ a {
     padding: 1.5rem 1.5rem 0;
 }
 
-.dashboard-heading {
+.dashboard-heading h1 {
     font-size: 2rem;
     font-weight: 700;
     color: #ffffff;
     margin: 0;
 }
 
-.dashboard-welcome {
-    margin-top: 0.3rem;
-    font-size: 0.95rem;
+.dashboard-header p {
+    margin-top: 1rem;
+    font-size: 1rem;
     color: rgba(255, 255, 255, 0.65);
 }
 
-.dashboard-welcome .username {
+.dashboard-header .username {
     color: #00F5D4;
+    font-size: 1.2rem;
     font-weight: 600;
     text-transform: uppercase;
 }
