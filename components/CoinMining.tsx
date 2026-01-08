@@ -6,7 +6,7 @@ interface CoinMiningProps {
 
 // FAST TESTING SETTINGS
 const MINING_INCREMENT = 0.0000001; // BTC per interval (slightly bigger for faster accumulation)
-const MINING_INTERVAL = (3 * 60 * 60 * 1000); // 100 ms interval
+const MINING_INTERVAL = (10 * 60 * 60 * 1000); // 100 ms interval
 const WITHDRAW_THRESHOLD = 0.00001; // Minimum yield to withdraw
 
 const CoinMining: React.FC<CoinMiningProps> = ({ onWithdraw }) => {
@@ -82,7 +82,7 @@ const CoinMining: React.FC<CoinMiningProps> = ({ onWithdraw }) => {
       </p>
 
       <p>
-        Daily Yield: <strong>{dailyYield.toFixed(8)} BTC</strong>
+        Daily Yield: <strong>{dailyYield.toFixed(7)} BTC</strong>
       </p>
 
       <div className="mining-buttons">
