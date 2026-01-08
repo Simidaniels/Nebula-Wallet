@@ -31,3 +31,8 @@ CoinGecko API – Live cryptocurrency data.
 LocalStorage – User information storage for username display.
 
 CSS / SCSS – Styling for dashboard, modals, and tables.
+
+
+
+
+I was tying to build a logicakl backend for this project for the first time but i couldn't find my way around it for hours, i just had to remove all dependencies downloaded and refresh this file..
