@@ -1,76 +1,111 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 interface CoinMiningProps {
   onWithdraw?: (amount: number) => void;
 }
 
-// FAST TESTING SETTINGS
-// MINING SETTINGS
-const MINING_INCREMENT = 0.00000001; // BTC earned per interval
-const MINING_INTERVAL = 15 * 60 * 1000; // 15 minutes
-const WITHDRAW_THRESHOLD = 0.00001; // Minimum yield to withdraw
-
+// ===== TEST MODE (VERY FAST) =====
+const BTC_PER_MS = 0.0000000005;
+const UI_TICK = 50;
+const WITHDRAW_THRESHOLD = 0.00001;
 
 const CoinMining: React.FC<CoinMiningProps> = ({ onWithdraw }) => {
   const [isMining, setIsMining] = useState(false);
   const [dailyYield, setDailyYield] = useState(0);
+  const [userKey, setUserKey] = useState<string | null>(null);
 
-  // Load mining state from localStorage
+  // 🔐 GET CURRENT USER KEY
   useEffect(() => {
-    const storedIsMining = localStorage.getItem("isMining") === "true";
-    const storedYield = parseFloat(localStorage.getItem("dailyYield") || "0");
-    const lastUpdate = parseInt(localStorage.getItem("lastUpdate") || "0", 10);
+    const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    if (!user?.email) return;
 
-    setIsMining(storedIsMining);
-    setDailyYield(storedYield);
-
-    if (storedIsMining && lastUpdate) {
-      // Calculate elapsed intervals
-      const elapsed = Date.now() - lastUpdate;
-      const intervals = Math.floor(elapsed / MINING_INTERVAL);
-      if (intervals > 0) {
-        const newYield = +(storedYield + intervals * MINING_INCREMENT).toFixed(8);
-        setDailyYield(newYield);
-        localStorage.setItem("dailyYield", newYield.toString());
-        localStorage.setItem("lastUpdate", Date.now().toString());
-      }
-    }
+    setUserKey(user.email);
   }, []);
 
-  // Mining effect
+  // 🔁 LOAD USER-SPECIFIC STATE
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    if (!userKey) return;
 
-    if (isMining) {
-      interval = setInterval(() => {
-        setDailyYield((prev) => {
-          const newYield = +(prev + MINING_INCREMENT).toFixed(8);
-          localStorage.setItem("dailyYield", newYield.toString());
-          localStorage.setItem("lastUpdate", Date.now().toString());
-          return newYield;
-        });
-      }, MINING_INTERVAL);
+    const mining = localStorage.getItem(`isMining_${userKey}`) === "true";
+    const storedYield = parseFloat(
+      localStorage.getItem(`dailyYield_${userKey}`) || "0"
+    );
+    const lastUpdate = parseInt(
+      localStorage.getItem(`lastUpdate_${userKey}`) || Date.now().toString(),
+      10
+    );
+
+    setIsMining(mining);
+
+    if (mining) {
+      const elapsedMs = Date.now() - lastUpdate;
+      const earned = elapsedMs * BTC_PER_MS;
+      const newYield = +(storedYield + earned).toFixed(8);
+
+      setDailyYield(newYield);
+      localStorage.setItem(`dailyYield_${userKey}`, newYield.toString());
+    } else {
+      setDailyYield(storedYield);
     }
 
-    localStorage.setItem("isMining", isMining.toString());
+    localStorage.setItem(`lastUpdate_${userKey}`, Date.now().toString());
+  }, [userKey]);
 
-    return () => {
-      if (interval) clearInterval(interval);
-      localStorage.setItem("isMining", isMining.toString());
-    };
-  }, [isMining]);
+  // ⚡ FAST MINING LOOP (USER-ISOLATED)
+  useEffect(() => {
+    if (!isMining || !userKey) return;
+
+    localStorage.setItem(`isMining_${userKey}`, "true");
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const lastUpdate = parseInt(
+        localStorage.getItem(`lastUpdate_${userKey}`) || now.toString(),
+        10
+      );
+
+      const elapsedMs = now - lastUpdate;
+      const earned = elapsedMs * BTC_PER_MS;
+
+      setDailyYield(prev => {
+        const next = +(prev + earned).toFixed(8);
+        localStorage.setItem(`dailyYield_${userKey}`, next.toString());
+        localStorage.setItem(`lastUpdate_${userKey}`, now.toString());
+        return next;
+      });
+    }, UI_TICK);
+
+    return () => clearInterval(interval);
+  }, [isMining, userKey]);
+
+  // 🛑 MANUAL TOGGLE ONLY (PER USER)
+  const toggleMining = () => {
+    if (!userKey) return;
+
+    setIsMining(prev => {
+      const next = !prev;
+      localStorage.setItem(`isMining_${userKey}`, next.toString());
+      localStorage.setItem(`lastUpdate_${userKey}`, Date.now().toString());
+      return next;
+    });
+  };
 
   const handleWithdraw = () => {
+    if (!userKey) return;
+
     if (dailyYield >= WITHDRAW_THRESHOLD && onWithdraw) {
       onWithdraw(dailyYield);
       setDailyYield(0);
-      localStorage.setItem("dailyYield", "0");
+      localStorage.setItem(`dailyYield_${userKey}`, "0");
+      localStorage.setItem(`lastUpdate_${userKey}`, Date.now().toString());
     }
   };
 
+  if (!userKey) return null;
+
   return (
     <div className="balance-card mining-card">
-      <h3>Bitcoin Mining</h3>
+      <h3>Bitcoin Mining (TEST MODE)</h3>
 
       <p>
         Status:{" "}
@@ -80,7 +115,7 @@ const CoinMining: React.FC<CoinMiningProps> = ({ onWithdraw }) => {
       </p>
 
       <p>
-        Hash Rate: <strong>{isMining ? "120 TH/s" : "0 TH/s"}</strong>
+        Hash Rate: <strong>{isMining ? "9999 TH/s" : "0 TH/s"}</strong>
       </p>
 
       <p>
@@ -90,7 +125,7 @@ const CoinMining: React.FC<CoinMiningProps> = ({ onWithdraw }) => {
       <div className="mining-buttons">
         <button
           className={`mining-btn ${isMining ? "stop" : "start"}`}
-          onClick={() => setIsMining(!isMining)}
+          onClick={toggleMining}
         >
           {isMining ? "Stop Mining" : "Mine BTC"}
         </button>
@@ -100,7 +135,7 @@ const CoinMining: React.FC<CoinMiningProps> = ({ onWithdraw }) => {
           onClick={handleWithdraw}
           disabled={dailyYield < WITHDRAW_THRESHOLD}
         >
-          Withdraw to Balance
+          Withdraw
         </button>
       </div>
     </div>
