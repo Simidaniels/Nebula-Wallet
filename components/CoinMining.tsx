@@ -105,7 +105,7 @@ const CoinMining: React.FC<CoinMiningProps> = ({ onWithdraw }) => {
 
   return (
     <div className="balance-card mining-card">
-      <h3>Bitcoin Mining (TEST MODE)</h3>
+      <h3>Bitcoin Mining</h3>
 
       <p>
         Status:{" "}
