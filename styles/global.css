@@ -13,6 +13,7 @@ body {
     background-color: #0B0F1A;
     color: white;
     box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 /* ---------------- Navbar ---------------- */
@@ -915,6 +916,17 @@ input[type="number"]::-webkit-inner-spin-button {
     box-shadow: 0 0 15px rgba(0, 245, 212, 0.18), 0 0 40px rgba(123, 92, 255, 0.12);
 }
 
+/* Mobile friendly */
+@media (max-width: 500px) {
+    .main-stat-card {
+            
+            padding: 0.6rem 0.8rem;
+            
+        }
+    .main-stat-card canvas {
+        height: 230px !important;
+    }
+}
 .section-title {
     font-size: 1.6rem;
     color: #00F5D4;

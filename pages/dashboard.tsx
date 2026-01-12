@@ -360,7 +360,9 @@ const Dashboard: NextPage = () => {
         {/* Chart */}
         {chartData && (
           <section className="main-stat-card">
-            <Line data={chartData} />
+            <div className="chart-card">
+              <Line data={chartData} />
+            </div>
           </section>
         )}
 
