@@ -6,71 +6,86 @@ const Hero = () => {
 
   return (
     <section className="hero">
-      <div className="hero-content">
-        {/* LEFT CONTENT */}
-        <div className="hero-text">
-          <span className="hero-badge">Built for the Future of Bitcoin</span>
+      <div className="hero-shell">
+        <div className="hero-content">
+          <div className="hero-text">
+            <span className="hero-badge">Professional Bitcoin Treasury Workspace</span>
 
-          <h1 className="hero-title">
-            Own Your Bitcoin.
-            <br />
-            <span>Anywhere. Anytime.</span>
-          </h1>
+            <h1 className="hero-title">
+              Operate your Bitcoin
+              <br />
+              <span>with clarity and control.</span>
+            </h1>
 
-          <p className="hero-description">
-            NebulaWallet is a secure, non-custodial Bitcoin wallet designed for
-            speed, simplicity, and global access. Buy, send, receive, and track
-            Bitcoin seamlessly — without borders or intermediaries.
-          </p>
+            <p className="hero-description">
+              Nebula Vault is a modern self-custody dashboard for monitoring balances,
+              reviewing transactions, tracking market movement, and managing digital
+              asset operations from one professional interface.
+            </p>
 
-          <ul className="hero-features">
-            <li>🔐 Non-custodial security — you own your keys</li>
-            <li>⚡ Fast transactions with real-time tracking</li>
-            <li>🌍 Borderless access — anywhere in the world</li>
-            <li>📊 Live Bitcoin price & portfolio insights</li>
-          </ul>
+            <ul className="hero-features">
+              <li>Live wallet visibility with clear balance reporting</li>
+              <li>Responsive transfer workflows for deposits and withdrawals</li>
+              <li>Integrated market intelligence and performance tables</li>
+              <li>Security-focused workspace built for daily use</li>
+            </ul>
 
-          <div className="hero-actions">
-            <button
-              className="hero-button primary"
-              onClick={() => router.push("/register")}
-            >
-              Create Free Wallet
-            </button>
+            <div className="hero-actions">
+              <button
+                className="hero-button primary"
+                onClick={() => router.push("/register")}
+              >
+                Launch Workspace
+              </button>
 
-            <button
-              className="hero-button secondary"
-              onClick={() => router.push("/login")}
-            >
-              Login
-            </button>
-          </div>
-
-          <div className="hero-trust">
-            <span>🔒 Bank-grade encryption</span>
-            <span>🚀 No setup fees</span>
-            <span>🌐 Global support</span>
-          </div>
-        </div>
-
-        {/* RIGHT VISUAL */}
-        <div className="hero-visual">
-          <div className="hero-wallet">
-            <div className="wallet-header">
-              <span>NebulaWallet</span>
-              <span className="wallet-status">● Secure</span>
+              <button
+                className="hero-button secondary"
+                onClick={() => router.push("/login")}
+              >
+                Sign In
+              </button>
             </div>
 
-            <div className="wallet-balance">
-              <p>Total Balance</p>
-              <h2>₿ 0.8421</h2>
-              <span>$42,380.50</span>
+            <div className="hero-trust">
+              <span>Self-custody</span>
+              <span>Operational clarity</span>
+              <span>Professional dashboarding</span>
             </div>
+          </div>
 
-            <div className="wallet-actions">
-              <button>Send</button>
-              <button>Receive</button>
-              <button>Buy</button>
+          <div className="hero-visual">
+            <div className="hero-wallet">
+              <div className="wallet-header">
+                <span>Nebula Vault</span>
+                <span className="wallet-status">Mainnet Active</span>
+              </div>
+
+              <div className="wallet-balance">
+                <p>Portfolio Balance</p>
+                <h2>BTC 0.8421</h2>
+                <span>$42,380.50 USD</span>
+              </div>
+
+              <div className="wallet-actions">
+                <button>Send</button>
+                <button>Receive</button>
+                <button>Review</button>
+              </div>
+
+              <div className="hero-metrics">
+                <div className="hero-metric">
+                  <strong>24h Volume</strong>
+                  <span>$1.28M</span>
+                </div>
+                <div className="hero-metric">
+                  <strong>Transactions</strong>
+                  <span>148</span>
+                </div>
+                <div className="hero-metric">
+                  <strong>Status</strong>
+                  <span>Secure</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 
-# NebulaWallet Dashboard
+# Nebula Vault Dashboard
 
-This is a **Next.js** Bitcoin wallet dashboard project that allows users to view balances, track transactions, deposit and withdraw BTC, and view live cryptocurrency data. The dashboard is fully interactive, with modals, charts, and dynamic updates.
+This is a **Next.js** Bitcoin wallet dashboard project that allows users to view balances, track transactions, deposit and withdraw BTC, and view live cryptocurrency data. The dashboard is fully interactive, with modals, charts, and dynamic updates under the Nebula Vault brand.
 
 
 ### Features

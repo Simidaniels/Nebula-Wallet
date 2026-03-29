@@ -1,4 +1,4 @@
-// pages/api/transactions.ts
+// pages/api/transaction.ts
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
@@ -10,7 +10,15 @@ export default async function handler(
       "https://api.coingecko.com/api/v3/coins/bitcoin/trades"
     );
 
+    if (!response.ok) {
+      return res.status(response.status).json([]);
+    }
+
     const data = await response.json();
+
+    if (!Array.isArray(data)) {
+      return res.status(200).json([]);
+    }
 
     const transactions = data.slice(0, 15).map((tx: any) => ({
       id: tx.trade_id,
@@ -22,6 +30,6 @@ export default async function handler(
 
     res.status(200).json(transactions);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch transactions" });
+    res.status(200).json([]);
   }
 }

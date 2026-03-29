@@ -2,12 +2,38 @@ import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 
 type DashboardNavbarProps = {
-  onLogout: () => void; // Passed this from Dashboard.tsx to clear transactions on logout
+  onLogout: () => void;
 };
+
+const BellIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M12 3a4 4 0 0 0-4 4v1.14a7 7 0 0 1-1.63 4.5L5 14.25V16h14v-1.75l-1.37-1.61A7 7 0 0 1 16 8.14V7a4 4 0 0 0-4-4Zm0 18a3 3 0 0 0 2.82-2H9.18A3 3 0 0 0 12 21Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+const SettingsIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="m19.14 12.94.86-1.49-1.41-2.44-1.71.2a5.94 5.94 0 0 0-1.03-.6l-.68-1.58h-2.82l-.68 1.58c-.36.15-.71.35-1.03.6l-1.71-.2L4.86 11.45l.86 1.49c-.03.31-.03.6 0 .91l-.86 1.49 1.41 2.44 1.71-.2c.32.25.67.45 1.03.6l.68 1.58h2.82l.68-1.58c.36-.15.71-.35 1.03-.6l1.71.2 1.41-2.44-.86-1.49c.03-.31.03-.6 0-.91ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+const ProfileIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z"
+      fill="currentColor"
+    />
+  </svg>
+);
 
 const DashboardNavbar: React.FC<DashboardNavbarProps> = ({ onLogout }) => {
   const router = useRouter();
-
   const [showProfile, setShowProfile] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -16,11 +42,10 @@ const DashboardNavbar: React.FC<DashboardNavbarProps> = ({ onLogout }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("currentUser");
-    onLogout(); // Clear dashboard state (transactions)
+    onLogout();
     router.push("/login");
   };
 
-  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
@@ -37,38 +62,55 @@ const DashboardNavbar: React.FC<DashboardNavbarProps> = ({ onLogout }) => {
 
   return (
     <nav className="dashboard-navbar">
-      {/* LEFT: Logo */}
-      <div className="dashboard-brand-row">
-        <div className="dashboard-brand-logo">N</div>
-        <span className="logo">NebulaWallet</span>
-      </div>
+      <button
+        type="button"
+        className="dashboard-brand-button"
+        onClick={() => router.push("/dashboard")}
+        aria-label="Go to dashboard"
+      >
+        <div className="dashboard-brand-row">
+          <div className="dashboard-brand-logo">N</div>
+          <span className="logo">Nebula Vault</span>
+        </div>
+      </button>
 
-      {/* RIGHT: Search, Notifications, Settings, Profile */}
       <div className="nav-right">
-        <input
-          type="text"
-          placeholder="Search transactions, blocks..."
-          className="nav-search"
-        />
+        <div className="dashboard-search-wrap">
+          <input
+            type="text"
+            placeholder="Search transactions, blocks, wallets..."
+            className="nav-search"
+          />
+        </div>
 
-        <button className="nav-icon" title="Notifications">
-          🔔
+        <button className="nav-icon" title="Notifications" aria-label="Notifications">
+          <BellIcon />
         </button>
 
-        {/* Settings Dropdown */}
         <div className="dropdown-wrapper" ref={settingsRef}>
           <button
             className="nav-icon"
             title="Settings"
-            onClick={() => setShowSettings(!showSettings)}
+            aria-label="Settings"
+            onClick={() => setShowSettings((prev) => !prev)}
           >
-            ⚙️
+            <SettingsIcon />
           </button>
 
           {showSettings && (
             <div className="dropdown-menu">
-              <button className="dropdown-item">Security</button>
-              <button className="dropdown-item">Preferences</button>
+              <button
+                className="dropdown-item"
+                onClick={() => router.push("/security")}
+              >
+                Security
+              </button>
+              <button
+                className="dropdown-item"
+                onClick={() => router.push("/preferences")}
+              >
+                Preferences
+              </button>
               <button className="dropdown-item logout" onClick={handleLogout}>
                 Logout
               </button>
@@ -76,14 +118,14 @@ const DashboardNavbar: React.FC<DashboardNavbarProps> = ({ onLogout }) => {
           )}
         </div>
 
-        {/* Profile Dropdown */}
         <div className="dropdown-wrapper" ref={profileRef}>
           <button
             className="nav-icon profile"
             title="Profile"
-            onClick={() => setShowProfile(!showProfile)}
+            aria-label="Profile"
+            onClick={() => setShowProfile((prev) => !prev)}
           >
-            👤
+            <ProfileIcon />
           </button>
 
           {showProfile && (

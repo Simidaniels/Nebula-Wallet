@@ -6,7 +6,6 @@ import { useRouter } from "next/router";
 const Register: NextPage = () => {
   const router = useRouter();
 
-  // New state for username
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -65,7 +64,6 @@ const Register: NextPage = () => {
     <div>
       <Navbar />
 
-      {/* ERROR POPUP */}
       {error && (
         <div className="popup-overlay">
           <div className="popup">
@@ -79,11 +77,10 @@ const Register: NextPage = () => {
       <div className="auth-container auth-complex">
         <div className="auth-header">
           <h1>Create Your Account</h1>
-          <p>Sign up to securely manage your Bitcoin with NebulaWallet</p>
+          <p>Sign up to securely manage your Bitcoin with Nebula Vault</p>
         </div>
 
         <form className="auth-form" onSubmit={handleRegister}>
-          {/* Username Input */}
           <div className="input-group">
             <label>Username</label>
             <input
@@ -95,7 +92,6 @@ const Register: NextPage = () => {
             />
           </div>
 
-          {/* Full Name Input */}
           <div className="input-group">
             <label>Full Name</label>
             <input
@@ -107,7 +103,6 @@ const Register: NextPage = () => {
             />
           </div>
 
-          {/* Email Input */}
           <div className="input-group">
             <label>Email Address</label>
             <input
@@ -119,13 +114,12 @@ const Register: NextPage = () => {
             />
           </div>
 
-          {/* Password Input */}
           <div className="input-group">
             <label>Password</label>
             <div className="password-field">
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
+                placeholder="Create a strong password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -139,13 +133,12 @@ const Register: NextPage = () => {
             </div>
           </div>
 
-          {/* Confirm Password Input */}
           <div className="input-group">
             <label>Confirm Password</label>
             <div className="password-field">
               <input
                 type={showConfirm ? "text" : "password"}
-                placeholder="••••••••"
+                placeholder="Confirm your password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -170,7 +163,7 @@ const Register: NextPage = () => {
           </p>
 
           <div className="auth-security">
-            🔒 Encrypted • Non-custodial • Secure access
+            Encrypted • Self-custody • Secure access
           </div>
         </div>
       </div>

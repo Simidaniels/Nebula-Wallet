@@ -5,9 +5,9 @@ export type Coin = {
   name: string;
   symbol: string;
   price: number;
-  change1h: number;
-  change24h: number;
-  change7d: number;
+  change1h: number | null;
+  change24h: number | null;
+  change7d: number | null;
   marketCap: number;
   volume: number;
   circulating: string;
@@ -19,6 +19,17 @@ export type Coin = {
 type Props = {
   coins: Coin[];
 };
+
+function formatPercentChange(value: number | null) {
+  if (value === null || Number.isNaN(value)) {
+    return { label: "N/A", className: "" };
+  }
+
+  return {
+    label: `${value.toFixed(2)}%`,
+    className: value >= 0 ? "positive" : "negative",
+  };
+}
 
 function Sparkline({ points, color = "#2dd4bf" }: { points: number[]; color?: string }) {
   if (!points || points.length === 0) return null;
@@ -59,28 +70,36 @@ const CryptoTable = ({ coins }: Props) => {
           </tr>
         </thead>
         <tbody>
-          {coins.map((c) => (
-            <tr key={c.rank}>
-              <td className="colRank">{c.rank}</td>
-              <td className="colName">
-                <div className="nameCell">
-                  <div className="icon">{c.icon ?? c.name[0]}</div>
-                  <div>
-                    <div className="namePrimary">{c.name}</div>
-                    <div className="nameSecondary">{c.symbol}</div>
+          {coins.map((c) => {
+            const change1h = formatPercentChange(c.change1h);
+            const change24h = formatPercentChange(c.change24h);
+            const change7d = formatPercentChange(c.change7d);
+
+            return (
+              <tr key={c.rank}>
+                <td className="colRank">{c.rank}</td>
+                <td className="colName">
+                  <div className="nameCell">
+                    <div className="icon">{c.icon ?? c.name[0]}</div>
+                    <div>
+                      <div className="namePrimary">{c.name}</div>
+                      <div className="nameSecondary">{c.symbol}</div>
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td className="colPrice">${c.price.toLocaleString()}</td>
-              <td className={c.change1h >= 0 ? "positive" : "negative"}>{c.change1h.toFixed(2)}%</td>
-              <td className={c.change24h >= 0 ? "positive" : "negative"}>{c.change24h.toFixed(2)}%</td>
-              <td className={c.change7d >= 0 ? "positive" : "negative"}>{c.change7d.toFixed(2)}%</td>
-              <td>${c.marketCap.toLocaleString()}</td>
-              <td>${c.volume.toLocaleString()}</td>
-              <td className="colSupply">{c.circulating}</td>
-              <td className="colSpark"><Sparkline points={c.sparkline} color={c.sparkColor} /></td>
-            </tr>
-          ))}
+                </td>
+                <td className="colPrice">${c.price.toLocaleString()}</td>
+                <td className={change1h.className}>{change1h.label}</td>
+                <td className={change24h.className}>{change24h.label}</td>
+                <td className={change7d.className}>{change7d.label}</td>
+                <td>${c.marketCap.toLocaleString()}</td>
+                <td>${c.volume.toLocaleString()}</td>
+                <td className="colSupply">{c.circulating}</td>
+                <td className="colSpark">
+                  <Sparkline points={c.sparkline} color={c.sparkColor} />
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

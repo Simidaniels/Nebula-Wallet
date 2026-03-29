@@ -41,14 +41,13 @@ const Login: NextPage = () => {
       }
 
       router.push("/dashboard");
-    }, 1200); // simulate auth delay
+    }, 1200);
   };
 
   return (
     <div>
       <Navbar />
 
-      {/* ERROR POPUP */}
       {error && (
         <div className="popup-overlay">
           <div className="popup">
@@ -62,7 +61,7 @@ const Login: NextPage = () => {
       <div className="auth-container auth-complex">
         <div className="auth-header">
           <h1>Welcome Back</h1>
-          <p>Sign in to securely access your NebulaWallet</p>
+          <p>Sign in to securely access Nebula Vault</p>
         </div>
 
         <form className="auth-form" onSubmit={handleLogin}>
@@ -72,7 +71,7 @@ const Login: NextPage = () => {
               type="email"
               placeholder="you@example.com"
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
@@ -82,9 +81,9 @@ const Login: NextPage = () => {
             <div className="password-field">
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
+                placeholder="Enter your password"
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
               <span
@@ -116,12 +115,11 @@ const Login: NextPage = () => {
 
         <div className="auth-footer">
           <p>
-            Don&apos;t have an account?{" "}
-            <a href="/register">Create one</a>
+            Don&apos;t have an account? <a href="/register">Create one</a>
           </p>
 
           <div className="auth-security">
-            🔒 Encrypted • Non-custodial • Secure access
+            Encrypted • Self-custody • Secure access
           </div>
         </div>
       </div>

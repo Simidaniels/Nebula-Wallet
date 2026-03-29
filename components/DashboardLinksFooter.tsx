@@ -18,7 +18,6 @@ const FOOTER_COLUMNS: FooterColumn[] = [
       { label: "Bitcoin Price", href: "#" },
       { label: "Market Overview", href: "#" },
       { label: "Transaction Explorer", href: "#" },
-    //   { label: "API Access", href: "#" },
     ],
   },
   {
@@ -32,10 +31,9 @@ const FOOTER_COLUMNS: FooterColumn[] = [
     ],
   },
   {
-    title: "NebulaWallet",
+    title: "Nebula Vault",
     links: [
       { label: "About Us", href: "#" },
-    //   { label: "Careers", href: "#", badge: "Hiring" },
       { label: "Security Practices", href: "#" },
       { label: "Risk Disclosure", href: "#" },
       { label: "Terms of Service", href: "/terms" },
@@ -62,16 +60,15 @@ const DashboardLinksFooter = () => {
       aria-label="Dashboard footer links"
     >
       <div className="dashboard-links-inner">
-        {/* BRAND */}
         <div className="dashboard-links-brand">
           <div className="dashboard-brand-row">
             <div className="dashboard-brand-logo">N</div>
-            <span className="dashboard-brand-name">NebulaWallet</span>
+            <span className="dashboard-brand-name">Nebula Vault</span>
           </div>
 
           <p className="dashboard-brand-description">
-            NebulaWallet is a secure, non-custodial Bitcoin wallet built for
-            global access. You always control your private keys and assets.
+            Nebula Vault gives you a secure Bitcoin dashboard with fast balance
+            tracking, clean transfer workflows, and market visibility.
           </p>
 
           <div className="dashboard-trust-badges">
@@ -81,7 +78,6 @@ const DashboardLinksFooter = () => {
           </div>
         </div>
 
-        {/* LINKS */}
         <nav className="dashboard-links-columns" aria-label="Footer navigation">
           {FOOTER_COLUMNS.map((column) => (
             <div key={column.title} className="dashboard-links-column">
@@ -104,7 +100,6 @@ const DashboardLinksFooter = () => {
           ))}
         </nav>
       </div>
-
     </section>
   );
 };

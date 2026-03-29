@@ -4,7 +4,6 @@ interface CoinMiningProps {
   onWithdraw?: (amount: number) => void;
 }
 
-// ===== TEST MODE (VERY FAST) =====
 const BTC_PER_MS = 0.0000000005;
 const UI_TICK = 50;
 const WITHDRAW_THRESHOLD = 0.00001;
@@ -14,17 +13,19 @@ const CoinMining: React.FC<CoinMiningProps> = ({ onWithdraw }) => {
   const [dailyYield, setDailyYield] = useState(0);
   const [userKey, setUserKey] = useState<string | null>(null);
 
-  // 🔐 GET CURRENT USER KEY
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
-    if (!user?.email) return;
+    if (!user?.email) {
+      return;
+    }
 
     setUserKey(user.email);
   }, []);
 
-  // 🔁 LOAD USER-SPECIFIC STATE
   useEffect(() => {
-    if (!userKey) return;
+    if (!userKey) {
+      return;
+    }
 
     const mining = localStorage.getItem(`isMining_${userKey}`) === "true";
     const storedYield = parseFloat(
@@ -51,9 +52,10 @@ const CoinMining: React.FC<CoinMiningProps> = ({ onWithdraw }) => {
     localStorage.setItem(`lastUpdate_${userKey}`, Date.now().toString());
   }, [userKey]);
 
-  // ⚡ FAST MINING LOOP (USER-ISOLATED)
   useEffect(() => {
-    if (!isMining || !userKey) return;
+    if (!isMining || !userKey) {
+      return;
+    }
 
     localStorage.setItem(`isMining_${userKey}`, "true");
 
@@ -67,7 +69,7 @@ const CoinMining: React.FC<CoinMiningProps> = ({ onWithdraw }) => {
       const elapsedMs = now - lastUpdate;
       const earned = elapsedMs * BTC_PER_MS;
 
-      setDailyYield(prev => {
+      setDailyYield((prev) => {
         const next = +(prev + earned).toFixed(8);
         localStorage.setItem(`dailyYield_${userKey}`, next.toString());
         localStorage.setItem(`lastUpdate_${userKey}`, now.toString());
@@ -78,11 +80,12 @@ const CoinMining: React.FC<CoinMiningProps> = ({ onWithdraw }) => {
     return () => clearInterval(interval);
   }, [isMining, userKey]);
 
-  // 🛑 MANUAL TOGGLE ONLY (PER USER)
   const toggleMining = () => {
-    if (!userKey) return;
+    if (!userKey) {
+      return;
+    }
 
-    setIsMining(prev => {
+    setIsMining((prev) => {
       const next = !prev;
       localStorage.setItem(`isMining_${userKey}`, next.toString());
       localStorage.setItem(`lastUpdate_${userKey}`, Date.now().toString());
@@ -91,7 +94,9 @@ const CoinMining: React.FC<CoinMiningProps> = ({ onWithdraw }) => {
   };
 
   const handleWithdraw = () => {
-    if (!userKey) return;
+    if (!userKey) {
+      return;
+    }
 
     if (dailyYield >= WITHDRAW_THRESHOLD && onWithdraw) {
       onWithdraw(dailyYield);
@@ -101,7 +106,9 @@ const CoinMining: React.FC<CoinMiningProps> = ({ onWithdraw }) => {
     }
   };
 
-  if (!userKey) return null;
+  if (!userKey) {
+    return null;
+  }
 
   return (
     <div className="balance-card mining-card">
